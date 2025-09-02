@@ -2,14 +2,15 @@ package analyze
 
 import (
 	"fmt"
-	"gamedl/internal/analyze/nfl"
 	"gamedl/internal/analyze/ncaab"
 	"gamedl/internal/analyze/ncaaf"
+	"gamedl/internal/analyze/nfl"
 )
 
 type Config struct {
 	Competition  string
 	AnalysisType string
+	InputDir     string
 	OutputDir    string
 	Years        []int
 }
@@ -28,33 +29,33 @@ func Run(config Config) error {
 }
 
 func runNFLAnalysis(config Config) error {
-	analyzer := nfl.NewAnalyzer(config.OutputDir)
-	
+	analyzer := nfl.NewAnalyzer(config.InputDir, config.OutputDir)
+
 	switch config.AnalysisType {
-	case "actions":
-		return analyzer.AnalyzeActions(config.Years)
+	case "action-types":
+		return analyzer.AnalyzeActionTypes(config.Years)
 	default:
 		return fmt.Errorf("unsupported analysis type for NFL: %s", config.AnalysisType)
 	}
 }
 
 func runNCAABAnalysis(config Config) error {
-	analyzer := ncaab.NewAnalyzer(config.OutputDir)
-	
+	analyzer := ncaab.NewAnalyzer(config.InputDir, config.OutputDir)
+
 	switch config.AnalysisType {
-	case "actions":
-		return analyzer.AnalyzeActions(config.Years)
+	case "review-types":
+		return analyzer.AnalyzeReviewTypes(config.Years)
 	default:
 		return fmt.Errorf("unsupported analysis type for NCAAB: %s", config.AnalysisType)
 	}
 }
 
 func runNCAAFAnalysis(config Config) error {
-	analyzer := ncaaf.NewAnalyzer(config.OutputDir)
-	
+	analyzer := ncaaf.NewAnalyzer(config.InputDir, config.OutputDir)
+
 	switch config.AnalysisType {
-	case "actions":
-		return analyzer.AnalyzeActions(config.Years)
+	case "review-types":
+		return analyzer.AnalyzeReviewTypes(config.Years)
 	default:
 		return fmt.Errorf("unsupported analysis type for NCAAF: %s", config.AnalysisType)
 	}

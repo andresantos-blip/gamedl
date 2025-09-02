@@ -12,6 +12,7 @@ import (
 )
 
 type Analyzer struct {
+	inputDir  string
 	outputDir string
 }
 
@@ -28,8 +29,9 @@ type GameReview struct {
 	Before [][]string `json:"before"`
 }
 
-func NewAnalyzer(outputDir string) *Analyzer {
+func NewAnalyzer(inputDir, outputDir string) *Analyzer {
 	return &Analyzer{
+		inputDir:  inputDir,
 		outputDir: outputDir,
 	}
 }
@@ -86,7 +88,7 @@ func (a *Analyzer) processFileNfl(path string) (ProcessResultNfl, error) {
 	return result, nil
 }
 
-func (a *Analyzer) AnalyzeActions(years []int) error {
+func (a *Analyzer) AnalyzeActionTypes(years []int) error {
 	defaultYears := []int{2021, 2022, 2023, 2024}
 	if len(years) == 0 {
 		years = defaultYears
@@ -99,7 +101,7 @@ func (a *Analyzer) AnalyzeActions(years []int) error {
 	subActionTypeCount := make(map[string]int)
 
 	for _, year := range years {
-		path := filepath.Join("nfl_games", strconv.Itoa(year), "*.json")
+		path := filepath.Join(a.inputDir, "nfl_games", strconv.Itoa(year), "*.json")
 		matches, err := filepath.Glob(path)
 		if err != nil {
 			fmt.Printf("Error globbing files for year %d: %v\n", year, err)
@@ -179,6 +181,11 @@ func (a *Analyzer) AnalyzeActions(years []int) error {
 }
 
 func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
+	// Ensure output directory exists
+	if err := os.MkdirAll(a.outputDir, 0755); err != nil {
+		return fmt.Errorf("creating output directory: %w", err)
+	}
+
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshaling JSON: %w", err)

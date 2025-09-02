@@ -30,7 +30,8 @@ func init() {
 	downloadCmd.Flags().StringP("competition", "c", "", "Competition to download (nfl, ncaab, ncaaf) (required)")
 	downloadCmd.Flags().StringP("provider", "p", "", "Data provider (sportradar, betgenius) (required)")
 	downloadCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to download (e.g., 2023,2024)")
-	downloadCmd.Flags().IntP("concurrency", "", 2, "Number of concurrent downloads")
+	downloadCmd.Flags().IntP("concurrency", "", 8, "Number of concurrent downloads")
+	downloadCmd.Flags().StringP("output-dir", "o", "downloaded_games", "Directory to store downloaded game files")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 
@@ -38,12 +39,14 @@ func init() {
 	viper.BindPFlag("download.provider", downloadCmd.Flags().Lookup("provider"))
 	viper.BindPFlag("download.seasons", downloadCmd.Flags().Lookup("seasons"))
 	viper.BindPFlag("download.concurrency", downloadCmd.Flags().Lookup("concurrency"))
+	viper.BindPFlag("download.output-dir", downloadCmd.Flags().Lookup("output-dir"))
 	
 	// Also bind environment variables directly
 	viper.BindEnv("download.competition", "GAMEDL_DOWNLOAD_COMPETITION")
 	viper.BindEnv("download.provider", "GAMEDL_DOWNLOAD_PROVIDER")
 	viper.BindEnv("download.seasons", "GAMEDL_DOWNLOAD_SEASONS")
 	viper.BindEnv("download.concurrency", "GAMEDL_DOWNLOAD_CONCURRENCY")
+	viper.BindEnv("download.output-dir", "GAMEDL_DOWNLOAD_OUTPUT_DIR")
 }
 
 func runDownload(cmd *cobra.Command, args []string) error {
@@ -51,6 +54,7 @@ func runDownload(cmd *cobra.Command, args []string) error {
 	provider := viper.GetString("download.provider")
 	seasonsStr := viper.GetStringSlice("download.seasons")
 	concurrency := viper.GetInt("download.concurrency")
+	outputDir := viper.GetString("download.output-dir")
 
 	if competition == "" {
 		return fmt.Errorf("competition is required")
@@ -89,12 +93,14 @@ func runDownload(cmd *cobra.Command, args []string) error {
 		fmt.Println("Seasons: all available")
 	}
 	fmt.Printf("Concurrency: %d\n", concurrency)
+	fmt.Printf("Output directory: %s\n", outputDir)
 
 	config := download.Config{
 		Competition: competition,
 		Provider:    provider,
 		Seasons:     seasons,
 		Concurrency: concurrency,
+		OutputDir:   outputDir,
 	}
 
 	if err := download.Run(config); err != nil {

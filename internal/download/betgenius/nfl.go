@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-const GamesDirectoryNfl = "nfl_games"
+const DefaultGamesDirectoryNfl = "nfl_games"
 
 type GameProcessReport struct {
 	Err  error
@@ -32,13 +32,14 @@ func gamesPerYearNfl(client *betgenius.Client, seasons *betgenius.SeasonsReply) 
 	return yearToGames, nil
 }
 
-func fetchAndSaveGameNfl(client *betgenius.Client, gameID string, year int) error {
+func fetchAndSaveGameNfl(client *betgenius.Client, gameID string, year int, outputDir string) error {
 	gamePbpData, err := client.GetNflPbpRaw(gameID)
 	if err != nil {
 		return fmt.Errorf("fetching game pbp: %w", err)
 	}
 
-	pathtoFile := filepath.Join(GamesDirectoryNfl, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
+	gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNfl)
+	pathtoFile := filepath.Join(gamesDir, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
 	err = os.WriteFile(pathtoFile, gamePbpData, 0644)
 	if err != nil {
 		return fmt.Errorf("saving game pbp: %w", err)
@@ -47,7 +48,7 @@ func fetchAndSaveGameNfl(client *betgenius.Client, gameID string, year int) erro
 	return nil
 }
 
-func DownloadNFL(seasons []int, concurrency int) error {
+func DownloadNFL(seasons []int, concurrency int, outputDir string) error {
 	client, err := createBetGeniusClient()
 	if err != nil {
 		return fmt.Errorf("failed to create BetGenius client: %w", err)
@@ -103,7 +104,8 @@ func DownloadNFL(seasons []int, concurrency int) error {
 	reportChannel := make(chan GameProcessReport, totalGames/concurrency+1)
 
 	for year, games := range yearToGames {
-		err := os.MkdirAll(filepath.Join(GamesDirectoryNfl, fmt.Sprintf("%d", year)), 0755)
+		gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNfl)
+		err := os.MkdirAll(filepath.Join(gamesDir, fmt.Sprintf("%d", year)), 0755)
 		if err != nil {
 			return fmt.Errorf("creating directory for year %d: %w", year, err)
 		}
@@ -125,7 +127,7 @@ func DownloadNFL(seasons []int, concurrency int) error {
 					Year: gameYear,
 				}
 
-				fetchAndSaveError := fetchAndSaveGameNfl(client, report.Id, gameYear)
+				fetchAndSaveError := fetchAndSaveGameNfl(client, report.Id, gameYear, outputDir)
 				if fetchAndSaveError != nil {
 					report.Err = fetchAndSaveError
 				}

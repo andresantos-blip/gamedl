@@ -28,19 +28,22 @@ func init() {
 
 	analyzeCmd.Flags().StringP("competition", "c", "", "Competition to analyze (nfl, ncaab, ncaaf) (required)")
 	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (required)")
-	analyzeCmd.Flags().StringP("output", "o", ".", "Output directory for analysis results")
+	analyzeCmd.Flags().StringP("input-dir", "i", "downloaded_games", "Directory containing downloaded game files")
+	analyzeCmd.Flags().StringP("output", "o", "analysis_results", "Output directory for analysis results")
 	analyzeCmd.Flags().StringSliceP("years", "y", nil, "Years to include in analysis (e.g., 2023,2024)")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 
 	viper.BindPFlag("analyze.competition", analyzeCmd.Flags().Lookup("competition"))
 	viper.BindPFlag("analyze.analysis", analyzeCmd.Flags().Lookup("analysis"))
+	viper.BindPFlag("analyze.input-dir", analyzeCmd.Flags().Lookup("input-dir"))
 	viper.BindPFlag("analyze.output", analyzeCmd.Flags().Lookup("output"))
 	viper.BindPFlag("analyze.years", analyzeCmd.Flags().Lookup("years"))
 	
 	// Also bind environment variables directly
 	viper.BindEnv("analyze.competition", "GAMEDL_ANALYZE_COMPETITION")
 	viper.BindEnv("analyze.analysis", "GAMEDL_ANALYZE_ANALYSIS")
+	viper.BindEnv("analyze.input-dir", "GAMEDL_ANALYZE_INPUT_DIR")
 	viper.BindEnv("analyze.output", "GAMEDL_ANALYZE_OUTPUT")
 	viper.BindEnv("analyze.years", "GAMEDL_ANALYZE_YEARS")
 }
@@ -48,6 +51,7 @@ func init() {
 func runAnalyze(cmd *cobra.Command, args []string) error {
 	competition := viper.GetString("analyze.competition")
 	analysisType := viper.GetString("analyze.analysis")
+	inputDir := viper.GetString("analyze.input-dir")
 	outputDir := viper.GetString("analyze.output")
 	yearsStr := viper.GetStringSlice("analyze.years")
 
@@ -78,6 +82,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Analyzing %s data\n", competition)
 	fmt.Printf("Analysis type: %s\n", analysisType)
+	fmt.Printf("Input directory: %s\n", inputDir)
 	fmt.Printf("Output directory: %s\n", outputDir)
 	if len(years) > 0 {
 		fmt.Printf("Years: %v\n", years)
@@ -88,6 +93,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	config := analyze.Config{
 		Competition:  competition,
 		AnalysisType: analysisType,
+		InputDir:     inputDir,
 		OutputDir:    outputDir,
 		Years:        years,
 	}

@@ -1,0 +1,286 @@
+# GameDL
+
+A command-line tool for downloading and analyzing sports game data from various providers. Built following 12-factor app principles with support for configuration via flags, environment variables, and configuration files.
+
+## Features
+
+- **Multi-provider support**: SportRadar and BetGenius
+- **Multiple competitions**: NFL, NCAAB, NCAAF
+- **12-factor configuration**: CLI flags → Environment variables → Configuration files
+- **Concurrent downloads**: Configurable concurrency for optimal performance
+- **Data analysis**: Built-in analyzers for different competition types
+- **Flexible output**: Customizable output directories and formats
+
+## Build
+
+### Prerequisites
+
+- Go 1.23.4 or later
+
+### Building
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd gamedl
+
+# Install dependencies
+go mod tidy
+
+# Build the CLI
+go build -o gamedl .
+```
+
+## Setup
+
+### Environment Variables
+
+To download games, the tool requires different API credentials depending on the provider you want to use.
+The env vars for each provider are mentioned below.
+
+It's a good idea to set these if you plan to use the download command.
+Feel free to ignore this section if you are only using the analysis command.
+
+#### BetGenius
+
+```bash
+export BG_FIXTURE_KEY="your_betgenius_fixture_api_key"
+export BG_FIXTURE_USER="your_betgenius_fixture_username"
+export BG_FIXTURE_PASSWORD="your_betgenius_fixture_password"
+export BG_STATS_KEY="your_betgenius_stats_api_key"
+export BG_STATS_USER="your_betgenius_stats_username"
+export BG_STATS_PASSWORD="your_betgenius_stats_password"
+```
+
+#### SportRadar (NCAAB, NCAAF)
+
+```bash
+export SPORTRADAR_NCAAB_KEY="your_sportradar_ncaab_api_key"
+export SPORTRADAR_NCAAF_KEY="your_sportradar_ncaaf_api_key"
+```
+
+## Usage
+
+### Download Command
+
+Download game data from sports providers:
+
+```bash
+# Basic usage
+./gamedl download --competition nfl --provider betgenius --seasons 2024
+
+# Download multiple seasons
+./gamedl download --competition ncaab --provider sportradar --seasons 2023,2024
+
+# With custom output directory and concurrency
+./gamedl download --competition nfl --provider betgenius --seasons 2024 --output-dir ./my_data --concurrency 4
+
+# Using environment variables
+GAMEDL_DOWNLOAD_COMPETITION=nfl GAMEDL_DOWNLOAD_PROVIDER=betgenius ./gamedl download --seasons 2024
+```
+
+#### Download Options
+
+- `--competition, -c`: Competition to download (nfl, ncaab, ncaaf) **(required)**
+- `--provider, -p`: Data provider (sportradar, betgenius) **(required)**
+- `--seasons, -s`: Seasons to download (e.g., 2023,2024)
+- `--output-dir, -o`: Directory to store downloaded game files (default: "downloaded_games")
+- `--concurrency`: Number of concurrent downloads (default: 8)
+
+#### Supported Combinations
+
+| Competition | BetGenius | SportRadar |
+|-------------|-----------|------------|
+| NFL         | ✅        | ❌         |
+| NCAAB       | ❌        | ✅         |
+| NCAAF       | ❌        | ✅         |
+
+### Analyze Command
+
+Analyze previously downloaded game data:
+
+```bash
+# Basic analysis
+./gamedl analyze --competition nfl --analysis actions --years 2024
+
+# NCAAB analysis with custom directories
+./gamedl analyze --competition ncaab --analysis actions --input-dir ./my_data --output ./analysis_results
+
+# Using environment variables
+GAMEDL_ANALYZE_COMPETITION=nfl GAMEDL_ANALYZE_ANALYSIS=actions ./gamedl analyze --years 2024
+```
+
+#### Analyze Options
+
+- `--competition, -c`: Competition to analyze (nfl, ncaab, ncaaf) **(required)**
+- `--analysis, -a`: Name of the analysis to perform. See below the list of available analysis. **(required)**
+- `--input-dir, -i`: Directory containing downloaded game files (default: "downloaded_games")
+- `--output, -o`: Output directory for analysis results (default: "analysis_results")
+- `--years, -y`: Years to include in analysis (e.g., 2023,2024)
+
+#### Available Analysis Types
+
+| Competition | Analysis Name | Description                                         |
+|-------------|---------------|-----------------------------------------------------|
+| NFL         | action-types  | Analyzes play-by-play action types and sequences    |
+| NCAAB       | review-types  | Analyzes challenge reviews and related events       |
+| NCAAF       | review-types  | Analyzes overturned play reviews and related events |
+
+## Configuration
+
+If there's a value for some flag that you pass often, it might make sense to set it via an environment variable or in a configuration file so you don't have to repeat it every time.
+
+This CLI tool follows the 12-factor app principles for configuration management, where particular config values can be set via command-line flags, environment variables, and/or configuration files.
+Flags take precedence over environment variables, which in turn take precedence over configuration files.
+
+### Configuration Options
+
+The following table shows all configuration options and how they can be set:
+
+#### Global Options
+
+| Config Key    | Environment Variable | CLI Flag        | Description                            |
+|---------------|----------------------|-----------------|----------------------------------------|
+| `log-level`   | `GAMEDL_LOG_LEVEL`   | `--log-level`   | Log level (debug, info, warn, error)   |
+
+#### Download Command Options
+
+| Config Key             | Environment Variable          | CLI Flag              | Description                                   |
+|------------------------|-------------------------------|-----------------------|-----------------------------------------------|
+| `download.competition` | `GAMEDL_DOWNLOAD_COMPETITION` | `--competition, -c`   | Competition to download (nfl, ncaab, ncaaf)   |
+| `download.provider`    | `GAMEDL_DOWNLOAD_PROVIDER`    | `--provider, -p`      | Data provider (sportradar, betgenius)         |
+| `download.seasons`     | `GAMEDL_DOWNLOAD_SEASONS`     | `--seasons, -s`       | Seasons to download (comma-separated)         |
+| `download.output-dir`  | `GAMEDL_DOWNLOAD_OUTPUT_DIR`  | `--output-dir, -o`    | Directory to store downloaded game files      |
+| `download.concurrency` | `GAMEDL_DOWNLOAD_CONCURRENCY` | `--concurrency`       | Number of concurrent downloads                |
+
+#### Analyze Command Options
+
+| Config Key            | Environment Variable          | CLI Flag            | Description                                    |
+|-----------------------|-------------------------------|---------------------|------------------------------------------------|
+| `analyze.competition` | `GAMEDL_ANALYZE_COMPETITION`  | `--competition, -c` | Competition to analyze (nfl, ncaab, ncaaf)     |
+| `analyze.analysis`    | `GAMEDL_ANALYZE_ANALYSIS`     | `--analysis, -a`    | Analysis name to perform                       |
+| `analyze.input-dir`   | `GAMEDL_ANALYZE_INPUT_DIR`    | `--input-dir, -i`   | Directory containing downloaded game files     |
+| `analyze.output`      | `GAMEDL_ANALYZE_OUTPUT`       | `--output, -o`      | Output directory for analysis results          |
+| `analyze.years`       | `GAMEDL_ANALYZE_YEARS`        | `--years, -y`       | Years to include in analysis (comma-separated) |
+
+### Configuration File
+
+The config keys in the table above refer to the options that can be set in a YAML configuration file.
+By default, the tool looks for a file named `.gamedl.yaml` in the current working directory and in the user's home directory.
+You can specify a different config file using the `--config, -f` flag.
+
+Example `~/.gamedl.yaml`:
+
+```yaml
+# Global settings
+log-level: info
+
+# Download defaults
+download:
+  competition: nfl
+  provider: betgenius
+  seasons: [2023, 2024]
+  output-dir: "downloaded_games"
+  concurrency: 8
+
+# Analyze defaults  
+analyze:
+  competition: nfl
+  analysis: actions
+  input-dir: "downloaded_games"
+  output: "analysis_results"
+  years: [2021, 2022, 2023, 2024]
+```
+
+## Output
+
+### Downloaded Data
+
+Game data is stored in directories organized by competition and year:
+
+```
+downloaded_games/
+├── nfl_games/
+│   ├── 2023/
+│   │   ├── game1.json
+│   │   └── game2.json
+│   └── 2024/
+│       ├── game1.json
+│       └── game2.json
+└── ncaab_games/
+    ├── 2023/
+    │   ├── game1.json
+    │   └── game2.json
+    └── 2024/
+        ├── game1.json
+        └── game2.json
+```
+
+### Analysis Results
+
+Analysis results are saved as JSON files in the specified output directory:
+
+#### NFL Analysis
+- `actions_to_games.json`: Action types mapped to games
+- `sub_actions_to_games.json`: Sub-action types mapped to games
+- `action_type_count.json`: Count of each action type
+- `sub_action_type_count.json`: Count of each sub-action type
+
+#### NCAAB Analysis
+- `review_events_to_games.json`: Review events mapped to games
+- `event_type_count.json`: Count of each event type
+- `review_games_ncaab/`: Sample game files for review events
+
+#### NCAAF Analysis
+- `types_to_games.json`: Review types mapped to games
+- `review_type_count.json`: Count of each review type
+- `review_games/`: Sample game files for review types
+
+## Examples
+
+### Complete Workflow
+
+1. **Download NFL data from BetGenius:**
+   ```bash
+   ./gamedl download --competition nfl --provider betgenius --seasons 2024
+   ```
+
+2. **Analyze the downloaded data:**
+   ```bash
+   ./gamedl analyze --competition nfl --analysis action-types --years 2024 --output ./nfl_analysis
+   ```
+
+3. **Download NCAAB data from SportRadar:**
+   ```bash
+   ./gamedl download --competition ncaab --provider sportradar --seasons 2024
+   ```
+
+4. **Analyze NCAAB reviews:**
+   ```bash
+   ./gamedl analyze --competition ncaab --analysis review-types --years 2024
+   ```
+
+### Using Environment Variables
+
+```bash
+# Set up environment
+export GAMEDL_DOWNLOAD_COMPETITION=nfl
+export GAMEDL_DOWNLOAD_PROVIDER=betgenius
+export GAMEDL_DOWNLOAD_CONCURRENCY=4
+
+# Download with environment defaults
+./gamedl download --seasons 2024
+
+# Override specific values
+./gamedl download --competition ncaab --provider sportradar --seasons 2023,2024
+```
+
+## Help
+
+Get help for any command:
+
+```bash
+./gamedl --help                    # General help
+./gamedl download --help           # Download command help
+./gamedl analyze --help            # Analyze command help
+```
