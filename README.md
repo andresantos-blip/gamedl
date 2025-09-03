@@ -15,7 +15,7 @@ A command-line tool for downloading and analyzing sports game data from various 
 
 ### Prerequisites
 
-- Go 1.23.4 or later
+- Go 1.25 or later
 
 ### Building
 
