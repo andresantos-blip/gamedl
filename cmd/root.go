@@ -29,9 +29,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gamedl.yaml)")
-	rootCmd.PersistentFlags().StringP("log-level", "l", "info", "log level (debug, info, warn, error)")
-
-	viper.BindPFlag("log-level", rootCmd.PersistentFlags().Lookup("log-level"))
 }
 
 func initConfig() {

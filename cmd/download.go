@@ -16,11 +16,7 @@ var downloadCmd = &cobra.Command{
 	Short: "Download game data from sports providers",
 	Long: `Download game information from various sports data providers.
 Supports SportRadar and BetGenius providers for different competitions.
-
-Configuration precedence (highest to lowest):
-1. Command line flags
-2. Environment variables (GAMEDL_*)
-3. Configuration file`,
+`,
 	RunE: runDownload,
 }
 
@@ -40,7 +36,7 @@ func init() {
 	viper.BindPFlag("download.seasons", downloadCmd.Flags().Lookup("seasons"))
 	viper.BindPFlag("download.concurrency", downloadCmd.Flags().Lookup("concurrency"))
 	viper.BindPFlag("download.output-dir", downloadCmd.Flags().Lookup("output-dir"))
-	
+
 	// Also bind environment variables directly
 	viper.BindEnv("download.competition", "GAMEDL_DOWNLOAD_COMPETITION")
 	viper.BindEnv("download.provider", "GAMEDL_DOWNLOAD_PROVIDER")

@@ -139,9 +139,9 @@ The following table shows all configuration options and how they can be set:
 
 #### Global Options
 
-| Config Key    | Environment Variable | CLI Flag        | Description                            |
-|---------------|----------------------|-----------------|----------------------------------------|
-| `log-level`   | `GAMEDL_LOG_LEVEL`   | `--log-level`   | Log level (debug, info, warn, error)   |
+| Config Key | Environment Variable | CLI Flag   | Description                                                                                   |
+|------------|----------------------|------------|-----------------------------------------------------------------------------------------------|
+| N/A        | N/A                  | `--config` | Config file to use (default `.gamedl.yaml` in the current directory or in the home directory) |
 
 #### Download Command Options
 
@@ -172,9 +172,6 @@ You can specify a different config file using the `--config, -f` flag.
 Example `~/.gamedl.yaml`:
 
 ```yaml
-# Global settings
-log-level: info
-
 # Download defaults
 download:
   competition: nfl
