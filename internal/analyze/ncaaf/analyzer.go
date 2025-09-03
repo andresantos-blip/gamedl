@@ -184,7 +184,7 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 		return fmt.Errorf("creating output directory: %w", err)
 	}
 
-	jsonData, err := json.Marshal(data)
+	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshaling JSON: %w", err)
 	}

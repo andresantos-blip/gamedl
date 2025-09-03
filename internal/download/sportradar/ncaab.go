@@ -1,6 +1,8 @@
 package sportradar
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"gamedl/lib/sportsradar"
 	"os"
@@ -44,7 +46,18 @@ func fetchAndSaveGameNcaab(client *sportsradar.Client, gameID string, year int, 
 
 	gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNcaab)
 	pathtoFile := filepath.Join(gamesDir, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
-	err = os.WriteFile(pathtoFile, gamePbpData, 0644)
+
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	err = json.Indent(bytesBuffer, gamePbpData, "", "  ")
+	if err != nil {
+		return fmt.Errorf("indenting game pbp: %w", err)
+	}
+	defer func() {
+		bytesBuffer.Reset()
+		bytesBuffer = nil
+	}()
+
+	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0644)
 	if err != nil {
 		return fmt.Errorf("saving game pbp: %w", err)
 	}
@@ -157,7 +170,7 @@ func DownloadNCAB(seasons []int, concurrency int, outputDir string) error {
 			status = "❌"
 		}
 
-		fmt.Printf("[%d] %s Processed game %s %d/%d (%.2f%%) games\n",
+		fmt.Printf("[%d] %s Downloaded game %s | Progress: %d/%d (%.2f%%) games\n",
 			report.Year, status, report.Id, processed, totalGames, (float64(processed)/float64(totalGames))*100.0)
 	}
 

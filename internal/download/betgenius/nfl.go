@@ -1,6 +1,8 @@
 package betgenius
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"gamedl/lib/betgenius"
 	"os"
@@ -40,7 +42,19 @@ func fetchAndSaveGameNfl(client *betgenius.Client, gameID string, year int, outp
 
 	gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNfl)
 	pathtoFile := filepath.Join(gamesDir, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
-	err = os.WriteFile(pathtoFile, gamePbpData, 0644)
+
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	err = json.Indent(bytesBuffer, gamePbpData, "", "  ")
+	if err != nil {
+		return fmt.Errorf("indenting game pbp: %w", err)
+	}
+
+	defer func() {
+		bytesBuffer.Reset()
+		bytesBuffer = nil
+	}()
+
+	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0644)
 	if err != nil {
 		return fmt.Errorf("saving game pbp: %w", err)
 	}
