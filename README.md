@@ -1,21 +1,13 @@
 # GameDL
 
-A command-line tool for downloading and analyzing sports game data from various providers. Built following 12-factor app principles with support for configuration via flags, environment variables, and configuration files.
-
-## Features
-
-- **Multi-provider support**: SportRadar and BetGenius
-- **Multiple competitions**: NFL, NCAAB, NCAAF
-- **12-factor configuration**: CLI flags → Environment variables → Configuration files
-- **Concurrent downloads**: Configurable concurrency for optimal performance
-- **Data analysis**: Built-in analyzers for different competition types
-- **Flexible output**: Customizable output directories and formats
+A command-line tool for downloading and analyzing game payloads for betgenius and sportradar.
 
 ## Build
 
 ### Prerequisites
 
 - Go 1.25 or later
+  - `brew install go`
 
 ### Building
 
