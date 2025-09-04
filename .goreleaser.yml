@@ -28,7 +28,7 @@ archives:
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else }}{{ .Arch }}{{ end }}
-    format: tar.gz
+    formats: tar.gz
     files:
       - README.md
   - id: zip
@@ -37,7 +37,7 @@ archives:
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else }}{{ .Arch }}{{ end }}
-    format: zip
+    formats: zip
     files:
       - README.md
 
