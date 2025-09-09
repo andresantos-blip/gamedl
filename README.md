@@ -2,14 +2,37 @@
 
 A command-line tool for downloading and analyzing game payloads for betgenius and sportradar.
 
-## Build
+## Running gamedl
 
-### Prerequisites
+To run gamedl, you can either download a pre-built binary or build from source.
+Using a pre-built binary is the easiest way to get started as it does not require you to have Go installed on your machine.
+
+### Download
+
+**Download v0.1.0:** [Mac (Intel)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_x86_64.zip) | [Mac (Apple Silicon)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_arm64.zip)
+
+Extract the zip folder and run the binary inside it from a terminal:
+
+```shell
+unzip path/to/downloaded/gamedl_Darwin_x86_64.zip
+cd path/to/extracted/folder
+./gamedl --help
+```
+
+To be able to run `gamedl` from any directory, move the binary to a directory included in your system's PATH.
+
+For more operating systems other than macOS, check the [releases page](https://github.com/andresantos-blip/gamedl/releases) for all the available builds.
+
+### Build from source
+
+You can also build gamedl from source if you have Go installed on your machine.
+
+#### Prerequisites
 
 - Go 1.25 or later
   - `brew install go`
 
-### Building
+#### Building
 
 ```bash
 # Clone the repository
