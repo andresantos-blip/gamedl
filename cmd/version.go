@@ -27,15 +27,18 @@ func runVersion(cmd *cobra.Command, args []string) {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 
 	if verbose {
-		fmt.Printf("Version: %s\n", buildInfo.Version)
+		fmt.Printf("version: %s\n", buildInfo.Version)
 		fmt.Printf("commit: %s\n", buildInfo.Commit)
-		fmt.Printf("built: %s\n", buildInfo.Date)
 
 		// Try to parse and format the date if it's not "unknown"
 		if buildInfo.Date != "unknown" {
 			if parsedDate, err := time.Parse(time.RFC3339, buildInfo.Date); err == nil {
 				fmt.Printf("built: %s\n", parsedDate.Format("2006-01-02 15:04:05 MST"))
+			} else {
+				fmt.Printf("built: %s\n", buildInfo.Date)
 			}
+		} else {
+			fmt.Printf("built: %s\n", buildInfo.Date)
 		}
 	} else {
 		fmt.Printf("%s\n", buildInfo.Version)
