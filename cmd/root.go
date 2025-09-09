@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"gamedl/lib/app/build"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -18,7 +19,10 @@ from various sports data providers (SportRadar, BetGenius) and analyzing
 the downloaded data.`,
 }
 
-func Execute() {
+var buildInfo build.Info
+
+func Execute(info build.Info) {
+	buildInfo = info
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)

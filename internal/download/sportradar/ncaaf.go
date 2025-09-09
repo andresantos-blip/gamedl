@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gamedl/lib/sportsradar"
+	sportsradar2 "gamedl/lib/web/clients/sportsradar"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -13,9 +13,9 @@ import (
 
 const DefaultGamesDirectoryNcaaf = "ncaaf_games"
 
-func gamesPerYearNcaaf(client *sportsradar.Client, seasons *sportsradar.NcaafSeasonsInfo) (map[int][]*sportsradar.NcaafGame, error) {
+func gamesPerYearNcaaf(client *sportsradar2.Client, seasons *sportsradar2.NcaafSeasonsInfo) (map[int][]*sportsradar2.NcaafGame, error) {
 	years := seasons.Years()
-	yearToGames := make(map[int][]*sportsradar.NcaafGame)
+	yearToGames := make(map[int][]*sportsradar2.NcaafGame)
 
 	for _, year := range years {
 		schedule, err := client.GetNcaafSeasonSchedule(year)
@@ -23,7 +23,7 @@ func gamesPerYearNcaaf(client *sportsradar.Client, seasons *sportsradar.NcaafSea
 			return nil, fmt.Errorf("getting game schedule for year %v: %w", year, err)
 		}
 
-		yearToGames[year] = make([]*sportsradar.NcaafGame, 0, 1024)
+		yearToGames[year] = make([]*sportsradar2.NcaafGame, 0, 1024)
 		for _, week := range schedule.Weeks {
 			for _, game := range week.Games {
 				yearToGames[year] = append(yearToGames[year], game)
@@ -34,7 +34,7 @@ func gamesPerYearNcaaf(client *sportsradar.Client, seasons *sportsradar.NcaafSea
 	return yearToGames, nil
 }
 
-func fetchAndSaveGameNcaaf(client *sportsradar.Client, gameID string, year int, outputDir string) error {
+func fetchAndSaveGameNcaaf(client *sportsradar2.Client, gameID string, year int, outputDir string) error {
 	gamePbpData, err := client.GetNcaafPbpOfGameRaw(gameID)
 	if err != nil {
 		return fmt.Errorf("fetching game pbp: %w", err)
@@ -82,7 +82,7 @@ func DownloadNCAF(seasons []int, concurrency int, outputDir string) error {
 
 	// Filter by requested seasons if specified
 	if len(seasons) > 0 {
-		filteredYearToGames := make(map[int][]*sportsradar.NcaafGame)
+		filteredYearToGames := make(map[int][]*sportsradar2.NcaafGame)
 		for _, season := range seasons {
 			if games, exists := yearToGames[season]; exists {
 				filteredYearToGames[season] = games

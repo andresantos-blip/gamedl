@@ -3,7 +3,7 @@ package ncaab
 import (
 	"encoding/json"
 	"fmt"
-	"gamedl/lib/sportsradar"
+	"gamedl/lib/web/clients/sportsradar"
 	"io"
 	"os"
 	"path/filepath"

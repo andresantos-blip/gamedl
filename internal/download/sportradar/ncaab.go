@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gamedl/lib/sportsradar"
+	sportsradar2 "gamedl/lib/web/clients/sportsradar"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,9 +19,9 @@ type GameProcessReport struct {
 	Year int
 }
 
-func gamesPerYearNcaab(client *sportsradar.Client, seasons *sportsradar.NcaabSeasonsInfo) (map[int][]*sportsradar.NcaabGame, error) {
+func gamesPerYearNcaab(client *sportsradar2.Client, seasons *sportsradar2.NcaabSeasonsInfo) (map[int][]*sportsradar2.NcaabGame, error) {
 	years := seasons.Years()
-	yearToGames := make(map[int][]*sportsradar.NcaabGame)
+	yearToGames := make(map[int][]*sportsradar2.NcaabGame)
 
 	for _, year := range years {
 		schedule, err := client.GetNcaabSeasonSchedule(year)
@@ -29,7 +29,7 @@ func gamesPerYearNcaab(client *sportsradar.Client, seasons *sportsradar.NcaabSea
 			return nil, fmt.Errorf("getting game schedule for year %v: %w", year, err)
 		}
 
-		yearToGames[year] = make([]*sportsradar.NcaabGame, 0, 1024)
+		yearToGames[year] = make([]*sportsradar2.NcaabGame, 0, 1024)
 		for _, game := range schedule.Games {
 			yearToGames[year] = append(yearToGames[year], game)
 		}
@@ -38,7 +38,7 @@ func gamesPerYearNcaab(client *sportsradar.Client, seasons *sportsradar.NcaabSea
 	return yearToGames, nil
 }
 
-func fetchAndSaveGameNcaab(client *sportsradar.Client, gameID string, year int, outputDir string) error {
+func fetchAndSaveGameNcaab(client *sportsradar2.Client, gameID string, year int, outputDir string) error {
 	gamePbpData, err := client.GetNcaabPbpOfGameRaw(gameID)
 	if err != nil {
 		return fmt.Errorf("fetching game pbp: %w", err)
@@ -85,7 +85,7 @@ func DownloadNCAB(seasons []int, concurrency int, outputDir string) error {
 
 	// Filter by requested seasons if specified
 	if len(seasons) > 0 {
-		filteredYearToGames := make(map[int][]*sportsradar.NcaabGame)
+		filteredYearToGames := make(map[int][]*sportsradar2.NcaabGame)
 		for _, season := range seasons {
 			if games, exists := yearToGames[season]; exists {
 				filteredYearToGames[season] = games

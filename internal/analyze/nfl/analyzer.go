@@ -3,7 +3,7 @@ package nfl
 import (
 	"encoding/json"
 	"fmt"
-	"gamedl/lib/betgenius"
+	"gamedl/lib/web/clients/betgenius"
 	"io"
 	"os"
 	"path/filepath"

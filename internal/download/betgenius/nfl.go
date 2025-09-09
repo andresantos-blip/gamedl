@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gamedl/lib/betgenius"
+	betgenius2 "gamedl/lib/web/clients/betgenius"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,9 +19,9 @@ type GameProcessReport struct {
 	Year int
 }
 
-func gamesPerYearNfl(client *betgenius.Client, seasons *betgenius.SeasonsReply) (map[int][]*betgenius.Fixture, error) {
+func gamesPerYearNfl(client *betgenius2.Client, seasons *betgenius2.SeasonsReply) (map[int][]*betgenius2.Fixture, error) {
 	years := seasons.SeasonsToYear()
-	yearToGames := make(map[int][]*betgenius.Fixture)
+	yearToGames := make(map[int][]*betgenius2.Fixture)
 
 	for id, year := range years {
 		schedule, err := client.GetNflGamesForSeason(id)
@@ -34,7 +34,7 @@ func gamesPerYearNfl(client *betgenius.Client, seasons *betgenius.SeasonsReply) 
 	return yearToGames, nil
 }
 
-func fetchAndSaveGameNfl(client *betgenius.Client, gameID string, year int, outputDir string) error {
+func fetchAndSaveGameNfl(client *betgenius2.Client, gameID string, year int, outputDir string) error {
 	gamePbpData, err := client.GetNflPbpRaw(gameID)
 	if err != nil {
 		return fmt.Errorf("fetching game pbp: %w", err)
@@ -82,7 +82,7 @@ func DownloadNFL(seasons []int, concurrency int, outputDir string) error {
 
 	// Filter by requested seasons if specified
 	if len(seasons) > 0 {
-		filteredYearToGames := make(map[int][]*betgenius.Fixture)
+		filteredYearToGames := make(map[int][]*betgenius2.Fixture)
 		for _, season := range seasons {
 			if games, exists := yearToGames[season]; exists {
 				filteredYearToGames[season] = games

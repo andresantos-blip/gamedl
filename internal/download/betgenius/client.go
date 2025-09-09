@@ -2,7 +2,7 @@ package betgenius
 
 import (
 	"fmt"
-	"gamedl/lib/betgenius"
+	"gamedl/lib/web/clients/betgenius"
 	"os"
 )
 

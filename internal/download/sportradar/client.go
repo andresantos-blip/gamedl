@@ -2,7 +2,7 @@ package sportradar
 
 import (
 	"fmt"
-	"gamedl/lib/sportsradar"
+	"gamedl/lib/web/clients/sportsradar"
 	"os"
 )
 
