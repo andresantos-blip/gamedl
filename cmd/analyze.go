@@ -39,7 +39,7 @@ func init() {
 	viper.BindPFlag("analyze.input-dir", analyzeCmd.Flags().Lookup("input-dir"))
 	viper.BindPFlag("analyze.output", analyzeCmd.Flags().Lookup("output"))
 	viper.BindPFlag("analyze.years", analyzeCmd.Flags().Lookup("years"))
-	
+
 	// Also bind environment variables directly
 	viper.BindEnv("analyze.competition", "GAMEDL_ANALYZE_COMPETITION")
 	viper.BindEnv("analyze.analysis", "GAMEDL_ANALYZE_ANALYSIS")
