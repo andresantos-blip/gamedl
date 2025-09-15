@@ -26,8 +26,8 @@ func init() {
 	downloadCmd.Flags().StringP("competition", "c", "", "Competition to download (values allowed: 'nfl', 'ncaab' or ncaaf) (required)")
 	downloadCmd.Flags().StringP("provider", "p", "", "Data provider (values allowed: 'sportradar', 'sr', 'betgenius', 'genius' or 'bg') (required)")
 	downloadCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to download, comma-separated. e.g '2023,2024' (default: all seasons available in the provider)")
-	downloadCmd.Flags().IntP("concurrency", "", 10, "Number of concurrent downloads (default: 10)")
-	downloadCmd.Flags().StringP("output-dir", "o", "downloaded_games", "Directory to store downloaded game files (default: ./downloaded_games)")
+	downloadCmd.Flags().IntP("concurrency", "", 10, "Number of concurrent downloads")
+	downloadCmd.Flags().StringP("output-dir", "o", "downloaded_games", "Directory to store downloaded game files")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 
