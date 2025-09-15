@@ -4,14 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"gamedl/internal/common"
 	betgenius2 "gamedl/lib/web/clients/betgenius"
 	"os"
-	"path/filepath"
 	"strconv"
 	"sync"
 )
-
-const DefaultGamesDirectoryNfl = "nfl_games"
 
 type GameProcessReport struct {
 	Err  error
@@ -40,8 +38,7 @@ func fetchAndSaveGameNfl(client *betgenius2.Client, gameID string, year int, out
 		return fmt.Errorf("fetching game pbp: %w", err)
 	}
 
-	gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNfl)
-	pathtoFile := filepath.Join(gamesDir, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
+	pathtoFile := common.GetGameFilePath(outputDir, "nfl", year, gameID)
 
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	err = json.Indent(bytesBuffer, gamePbpData, "", "  ")
@@ -68,27 +65,23 @@ func DownloadNFL(seasons []int, concurrency int, outputDir string) error {
 		return fmt.Errorf("failed to create BetGenius client: %w", err)
 	}
 
+	fmt.Println("Getting seasons data...")
 	// Fetch seasons
 	seasonsReply, err := client.GetNflSeasons("296")
 	if err != nil {
 		return fmt.Errorf("getting seasons: %w", err)
 	}
 
+	if len(seasons) > 0 {
+		seasonsReply.FilterYears(seasons)
+	}
+
+	fmt.Printf("Getting game ids for seasons %v...\n", seasonsReply.Years())
+
 	// Get games per year
 	yearToGames, err := gamesPerYearNfl(client, seasonsReply)
 	if err != nil {
 		return fmt.Errorf("getting games: %w", err)
-	}
-
-	// Filter by requested seasons if specified
-	if len(seasons) > 0 {
-		filteredYearToGames := make(map[int][]*betgenius2.Fixture)
-		for _, season := range seasons {
-			if games, exists := yearToGames[season]; exists {
-				filteredYearToGames[season] = games
-			}
-		}
-		yearToGames = filteredYearToGames
 	}
 
 	totalGames := 0
@@ -118,8 +111,7 @@ func DownloadNFL(seasons []int, concurrency int, outputDir string) error {
 	reportChannel := make(chan GameProcessReport, totalGames/concurrency+1)
 
 	for year, games := range yearToGames {
-		gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNfl)
-		err := os.MkdirAll(filepath.Join(gamesDir, fmt.Sprintf("%d", year)), 0755)
+		err := common.CreateYearDirectory(outputDir, "nfl", year)
 		if err != nil {
 			return fmt.Errorf("creating directory for year %d: %w", year, err)
 		}

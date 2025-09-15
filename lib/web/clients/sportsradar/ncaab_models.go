@@ -1,24 +1,28 @@
 package sportsradar
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
+type NcaabSeasonInfo struct {
+	ID   string `json:"id"`
+	Year int    `json:"year"`
+	Type struct {
+		Code string `json:"code"`
+		Name string `json:"name"`
+	} `json:"type"`
+	StartDate string `json:"start_date,omitempty"`
+	EndDate   string `json:"end_date,omitempty"`
+	Status    string `json:"status,omitempty"`
+}
 type NcaabSeasonsInfo struct {
 	League struct {
 		ID    string `json:"id"`
 		Name  string `json:"name"`
 		Alias string `json:"alias"`
 	} `json:"league"`
-	Seasons []struct {
-		ID   string `json:"id"`
-		Year int    `json:"year"`
-		Type struct {
-			Code string `json:"code"`
-			Name string `json:"name"`
-		} `json:"type"`
-		StartDate string `json:"start_date,omitempty"`
-		EndDate   string `json:"end_date,omitempty"`
-		Status    string `json:"status,omitempty"`
-	} `json:"seasons"`
+	Seasons []*NcaabSeasonInfo `json:"seasons"`
 }
 
 func (si *NcaabSeasonsInfo) Years() []int {
@@ -27,6 +31,17 @@ func (si *NcaabSeasonsInfo) Years() []int {
 		years = append(years, season.Year)
 	}
 	return years
+}
+
+func (si *NcaabSeasonsInfo) FilterYears(years []int) {
+	filteredSeasons := make([]*NcaabSeasonInfo, 0, len(si.Seasons))
+
+	for _, season := range si.Seasons {
+		if slices.Contains(years, season.Year) {
+			filteredSeasons = append(filteredSeasons, season)
+		}
+	}
+	si.Seasons = filteredSeasons
 }
 
 type NcaabSeasonSchedule struct {

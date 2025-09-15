@@ -3,12 +3,12 @@ package ncaab
 import (
 	"encoding/json"
 	"fmt"
+	"gamedl/internal/common"
 	"gamedl/lib/web/clients/sportsradar"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 )
 
@@ -90,17 +90,13 @@ func (a *Analyzer) processFileNcaab(path string) (ProcessResultNcaab, error) {
 }
 
 func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
-	defaultYears := []int{2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024}
-	if len(years) == 0 {
-		years = defaultYears
-	}
 
 	var errs []error
 	eventsToGames := make(map[string][]*GameReview)
 	eventTypeCount := make(map[string]int)
 
 	for _, year := range years {
-		path := filepath.Join(a.inputDir, "ncaab_games", strconv.Itoa(year), "*.json")
+		path := common.GetYearGlobPattern(a.inputDir, "ncaab", year)
 		matches, err := filepath.Glob(path)
 		if err != nil {
 			fmt.Printf("Error globbing files for year %d: %v\n", year, err)
@@ -157,7 +153,7 @@ func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
 			}
 
 			for _, game := range games {
-				gameFile := filepath.Join(a.inputDir, "ncaab_games", strconv.Itoa(game.Year), fmt.Sprintf("%s.json", game.ID))
+				gameFile := common.GetGameFilePath(a.inputDir, "ncaab", game.Year, game.ID)
 				gameData, err := os.ReadFile(gameFile)
 				if err != nil {
 					fmt.Printf("could not read game file: %v\n", err)

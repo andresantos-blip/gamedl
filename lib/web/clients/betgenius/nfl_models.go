@@ -2,6 +2,7 @@ package betgenius
 
 import (
 	"encoding/json"
+	"slices"
 	"time"
 )
 
@@ -25,6 +26,24 @@ func (s *SeasonsReply) SeasonsToYear() map[int]int {
 		idsToYears[season.ID] = season.Year()
 	}
 	return idsToYears
+}
+
+func (s *SeasonsReply) FilterYears(years []int) {
+	filteredSeasons := make([]*Season, 0, len(s.Embedded.Seasons))
+	for _, season := range s.Embedded.Seasons {
+		if slices.Contains(years, season.Year()) {
+			filteredSeasons = append(filteredSeasons, season)
+		}
+	}
+	s.Embedded.Seasons = filteredSeasons
+}
+
+func (s *SeasonsReply) Years() []int {
+	years := make([]int, 0, len(s.Embedded.Seasons))
+	for _, season := range s.Embedded.Seasons {
+		years = append(years, season.Year())
+	}
+	return years
 }
 
 type Season struct {

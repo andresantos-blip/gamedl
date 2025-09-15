@@ -3,12 +3,12 @@ package nfl
 import (
 	"encoding/json"
 	"fmt"
+	"gamedl/internal/common"
 	"gamedl/lib/web/clients/betgenius"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 )
 
 type Analyzer struct {
@@ -89,10 +89,6 @@ func (a *Analyzer) processFileNfl(path string) (ProcessResultNfl, error) {
 }
 
 func (a *Analyzer) AnalyzeActionTypes(years []int) error {
-	defaultYears := []int{2021, 2022, 2023, 2024}
-	if len(years) == 0 {
-		years = defaultYears
-	}
 
 	var errs []error
 	actionsToGames := make(map[string][]*GameReview)
@@ -101,7 +97,7 @@ func (a *Analyzer) AnalyzeActionTypes(years []int) error {
 	subActionTypeCount := make(map[string]int)
 
 	for _, year := range years {
-		path := filepath.Join(a.inputDir, "nfl_games", strconv.Itoa(year), "*.json")
+		path := common.GetYearGlobPattern(a.inputDir, "nfl", year)
 		matches, err := filepath.Glob(path)
 		if err != nil {
 			fmt.Printf("Error globbing files for year %d: %v\n", year, err)

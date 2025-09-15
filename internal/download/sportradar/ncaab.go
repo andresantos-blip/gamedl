@@ -4,14 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"gamedl/internal/common"
 	sportsradar2 "gamedl/lib/web/clients/sportsradar"
 	"os"
-	"path/filepath"
-	"strconv"
 	"sync"
 )
-
-const DefaultGamesDirectoryNcaab = "ncaab_games"
 
 type GameProcessReport struct {
 	Err  error
@@ -44,8 +41,7 @@ func fetchAndSaveGameNcaab(client *sportsradar2.Client, gameID string, year int,
 		return fmt.Errorf("fetching game pbp: %w", err)
 	}
 
-	gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNcaab)
-	pathtoFile := filepath.Join(gamesDir, strconv.Itoa(year), fmt.Sprintf("%s.json", gameID))
+	pathtoFile := common.GetGameFilePath(outputDir, "ncaab", year, gameID)
 
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	err = json.Indent(bytesBuffer, gamePbpData, "", "  ")
@@ -71,27 +67,23 @@ func DownloadNCAB(seasons []int, concurrency int, outputDir string) error {
 		return fmt.Errorf("failed to create SportRadar client: %w", err)
 	}
 
+	fmt.Println("Getting seasons data...")
 	// Fetch seasons
 	seasonsInfo, err := client.GetNcaabSeasons()
 	if err != nil {
 		return fmt.Errorf("getting seasons: %w", err)
 	}
 
+	if len(seasons) > 0 {
+		seasonsInfo.FilterYears(seasons)
+	}
+
+	fmt.Printf("Getting game ids for seasons %v...\n", seasonsInfo.Years())
+
 	// Get games per year
 	yearToGames, err := gamesPerYearNcaab(client, seasonsInfo)
 	if err != nil {
 		return fmt.Errorf("getting games: %w", err)
-	}
-
-	// Filter by requested seasons if specified
-	if len(seasons) > 0 {
-		filteredYearToGames := make(map[int][]*sportsradar2.NcaabGame)
-		for _, season := range seasons {
-			if games, exists := yearToGames[season]; exists {
-				filteredYearToGames[season] = games
-			}
-		}
-		yearToGames = filteredYearToGames
 	}
 
 	totalGames := 0
@@ -121,8 +113,7 @@ func DownloadNCAB(seasons []int, concurrency int, outputDir string) error {
 	reportChannel := make(chan GameProcessReport, totalGames/concurrency+1)
 
 	for year, games := range yearToGames {
-		gamesDir := filepath.Join(outputDir, DefaultGamesDirectoryNcaab)
-		err := os.MkdirAll(filepath.Join(gamesDir, fmt.Sprintf("%d", year)), 0755)
+		err := common.CreateYearDirectory(outputDir, "ncaab", year)
 		if err != nil {
 			return fmt.Errorf("creating directory for year %d: %w", year, err)
 		}
