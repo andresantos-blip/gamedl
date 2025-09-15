@@ -19,7 +19,7 @@ This command will automatically fetch the binary from the latest release and try
 
 ### Option 2: Manual Download
 
-**Download v0.1.0:** [Mac (Intel)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_x86_64.zip) | [Mac (Apple Silicon)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_arm64.zip)
+**Download v0.2.0:** [Mac (Intel)](https://github.com/andresantos-blip/gamedl/releases/download/v0.2.0/gamedl_Darwin_x86_64.zip) | [Mac (Apple Silicon)](https://github.com/andresantos-blip/gamedl/releases/download/v0.2.0/gamedl_Darwin_arm64.zip)
 
 Use the download links above if you want more control of the installation process.
 
