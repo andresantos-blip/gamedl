@@ -12,7 +12,7 @@ Using a pre-built binary is the easiest way to get started as it does not requir
 The easiest way to download/update and install the script is by running:
 
 ```bash
-curl -sSfL https://raw.githubusercontent.com/andresantos-blip/gamedl/main/scripts/autoinstall.sh | bash
+curl -sSfL https://tinyurl.com/gamedl-install | bash
 ```
 
 This command will automatically fetch the binary from the latest release and try to put it into you PATH so you can use it from any directory!
