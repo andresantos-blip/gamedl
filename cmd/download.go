@@ -61,7 +61,7 @@ func runDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	validCompetitions := []string{"nfl", "ncaab", "ncaaf"}
-	validProviders := []string{"sportradar", "betgenius"}
+	validProviders := []string{"sportradar", "sr", "betgenius", "genius", "bg"}
 
 	if !contains(validCompetitions, competition) {
 		return fmt.Errorf("invalid competition %s. Valid options: %s", competition, strings.Join(validCompetitions, ", "))

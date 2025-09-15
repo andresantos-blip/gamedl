@@ -16,9 +16,9 @@ type Config struct {
 
 func Run(config Config) error {
 	switch config.Provider {
-	case "betgenius":
+	case "betgenius", "genius", "bg":
 		return runBetGenius(config)
-	case "sportradar":
+	case "sportradar", "sr":
 		return runSportRadar(config)
 	default:
 		return fmt.Errorf("unsupported provider: %s", config.Provider)
