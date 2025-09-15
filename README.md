@@ -7,7 +7,7 @@ A command-line tool for downloading and analyzing game payloads for betgenius an
 To run gamedl, you can either download a pre-built binary or build from source.
 Using a pre-built binary is the easiest way to get started as it does not require you to have Go installed on your machine.
 
-### Download and install
+### Option 1: Automatic download and install
 
 The easiest way to download/update and install the script is by running:
 
@@ -17,7 +17,7 @@ curl -sSfL https://raw.githubusercontent.com/andresantos-blip/gamedl/main/script
 
 This command will automatically fetch the binary from the latest release and try to put it into you PATH so you can use it from any directory!
 
-### Manual Download
+### Option 2: Manual Download
 
 **Download v0.1.0:** [Mac (Intel)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_x86_64.zip) | [Mac (Apple Silicon)](https://github.com/andresantos-blip/gamedl/releases/download/v0.1.0/gamedl_Darwin_arm64.zip)
 
@@ -35,7 +35,7 @@ To be able to run `gamedl` from any directory, move the binary to a directory in
 
 For more operating systems other than macOS, check the [releases page](https://github.com/andresantos-blip/gamedl/releases) for all the available builds.
 
-### Build from source
+### Option 3: Build from source
 
 You can also build gamedl from source if you have Go installed on your machine.
 
