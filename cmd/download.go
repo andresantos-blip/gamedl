@@ -23,11 +23,11 @@ Supports SportRadar and BetGenius providers for different competitions.
 func init() {
 	rootCmd.AddCommand(downloadCmd)
 
-	downloadCmd.Flags().StringP("competition", "c", "", "Competition to download (nfl, ncaab, ncaaf) (required)")
-	downloadCmd.Flags().StringP("provider", "p", "", "Data provider (sportradar, betgenius) (required)")
-	downloadCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to download (e.g., 2023,2024)")
-	downloadCmd.Flags().IntP("concurrency", "", 8, "Number of concurrent downloads")
-	downloadCmd.Flags().StringP("output-dir", "o", "downloaded_games", "Directory to store downloaded game files")
+	downloadCmd.Flags().StringP("competition", "c", "", "Competition to download (values allowed: 'nfl', 'ncaab' or ncaaf) (required)")
+	downloadCmd.Flags().StringP("provider", "p", "", "Data provider (values allowed: 'sportradar', 'sr', 'betgenius', 'genius' or 'bg') (required)")
+	downloadCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to download, comma-separated. e.g '2023,2024' (default: all seasons available in the provider)")
+	downloadCmd.Flags().IntP("concurrency", "", 10, "Number of concurrent downloads (default: 10)")
+	downloadCmd.Flags().StringP("output-dir", "o", "downloaded_games", "Directory to store downloaded game files (default: ./downloaded_games)")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 

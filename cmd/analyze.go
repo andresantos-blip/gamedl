@@ -26,11 +26,11 @@ Configuration precedence (highest to lowest):
 func init() {
 	rootCmd.AddCommand(analyzeCmd)
 
-	analyzeCmd.Flags().StringP("competition", "c", "", "Competition to analyze (nfl, ncaab, ncaaf) (required)")
-	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (required)")
-	analyzeCmd.Flags().StringP("input-dir", "i", "downloaded_games", "Directory containing downloaded game files")
-	analyzeCmd.Flags().StringP("output", "o", "analysis_results", "Output directory for analysis results")
-	analyzeCmd.Flags().StringSliceP("years", "y", nil, "Years to include in analysis (e.g., 2023,2024)")
+	analyzeCmd.Flags().StringP("competition", "c", "", "Competition to analyze (values allowed: 'nfl', 'ncaab' or 'ncaaf') (required)")
+	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (values allowed: 'action-types' or 'review-types') (required)")
+	analyzeCmd.Flags().StringP("input-dir", "i", "downloaded_games", "Directory containing downloaded game files (default: ./downloaded_games)")
+	analyzeCmd.Flags().StringP("output", "o", "analysis_results", "Output directory for analysis results (default: ./analysis_results)")
+	analyzeCmd.Flags().StringSliceP("years", "y", nil, "Years to include in analysis, comma-separated. e.g '2023,2024' (default: all years available)")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 
