@@ -30,7 +30,7 @@ func init() {
 	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (values allowed: 'action-types' or 'review-types') (required)")
 	analyzeCmd.Flags().StringP("input-dir", "i", "downloaded_games", "Directory containing downloaded game files (default: ./downloaded_games)")
 	analyzeCmd.Flags().StringP("output", "o", "analysis_results", "Output directory for analysis results (default: ./analysis_results)")
-	analyzeCmd.Flags().StringSliceP("years", "y", nil, "Years to include in analysis, comma-separated. e.g '2023,2024' (default: all years available)")
+	analyzeCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to include in analysis, comma-separated. e.g '2023,2024' (default: all seasons available)")
 
 	// Note: We handle required validation in RunE since we use viper for config precedence
 
@@ -38,14 +38,14 @@ func init() {
 	viper.BindPFlag("analyze.analysis", analyzeCmd.Flags().Lookup("analysis"))
 	viper.BindPFlag("analyze.input-dir", analyzeCmd.Flags().Lookup("input-dir"))
 	viper.BindPFlag("analyze.output", analyzeCmd.Flags().Lookup("output"))
-	viper.BindPFlag("analyze.years", analyzeCmd.Flags().Lookup("years"))
+	viper.BindPFlag("analyze.seasons", analyzeCmd.Flags().Lookup("seasons"))
 
 	// Also bind environment variables directly
 	viper.BindEnv("analyze.competition", "GAMEDL_ANALYZE_COMPETITION")
 	viper.BindEnv("analyze.analysis", "GAMEDL_ANALYZE_ANALYSIS")
 	viper.BindEnv("analyze.input-dir", "GAMEDL_ANALYZE_INPUT_DIR")
 	viper.BindEnv("analyze.output", "GAMEDL_ANALYZE_OUTPUT")
-	viper.BindEnv("analyze.years", "GAMEDL_ANALYZE_YEARS")
+	viper.BindEnv("analyze.seasons", "GAMEDL_ANALYZE_SEASONS")
 }
 
 func runAnalyze(cmd *cobra.Command, args []string) error {
@@ -53,7 +53,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	analysisType := viper.GetString("analyze.analysis")
 	inputDir := viper.GetString("analyze.input-dir")
 	outputDir := viper.GetString("analyze.output")
-	yearsStr := viper.GetStringSlice("analyze.years")
+	seasonsStr := viper.GetStringSlice("analyze.seasons")
 
 	if competition == "" {
 		return fmt.Errorf("competition is required")
@@ -69,14 +69,14 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("invalid competition %s. Valid options: %s", competition, strings.Join(validCompetitions, ", "))
 	}
 
-	var years []int
-	if len(yearsStr) > 0 {
-		for _, y := range yearsStr {
-			year, err := parseYear(strings.TrimSpace(y))
+	var seasons []int
+	if len(seasonsStr) > 0 {
+		for _, s := range seasonsStr {
+			season, err := parseYear(strings.TrimSpace(s))
 			if err != nil {
-				return fmt.Errorf("invalid year %s: %w", y, err)
+				return fmt.Errorf("invalid season %s: %w", s, err)
 			}
-			years = append(years, year)
+			seasons = append(seasons, season)
 		}
 	}
 
@@ -84,10 +84,10 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Analysis type: %s\n", analysisType)
 	fmt.Printf("Input directory: %s\n", inputDir)
 	fmt.Printf("Output directory: %s\n", outputDir)
-	if len(years) > 0 {
-		fmt.Printf("Years: %v\n", years)
+	if len(seasons) > 0 {
+		fmt.Printf("Seasons: %v\n", seasons)
 	} else {
-		fmt.Println("Years: all available")
+		fmt.Println("Seasons: all available")
 	}
 
 	config := analyze.Config{
@@ -95,7 +95,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		AnalysisType: analysisType,
 		InputDir:     inputDir,
 		OutputDir:    outputDir,
-		Years:        years,
+		Seasons:      seasons,
 	}
 
 	if err := analyze.Run(config); err != nil {

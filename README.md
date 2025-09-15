@@ -128,13 +128,13 @@ Analyze previously downloaded game data:
 
 ```bash
 # Basic analysis
-./gamedl analyze --competition nfl --analysis action-types --years 2024
+./gamedl analyze --competition nfl --analysis action-types --seasons 2024
 
 # NCAAB analysis with custom directories
 ./gamedl analyze --competition ncaab --analysis review-types --input-dir ./my_data --output ./analysis_results
 
 # Using environment variables
-GAMEDL_ANALYZE_COMPETITION=nfl GAMEDL_ANALYZE_ANALYSIS=action-types ./gamedl analyze --years 2024
+GAMEDL_ANALYZE_COMPETITION=nfl GAMEDL_ANALYZE_ANALYSIS=action-types ./gamedl analyze --seasons 2024
 ```
 
 #### Analyze Options
@@ -143,7 +143,7 @@ GAMEDL_ANALYZE_COMPETITION=nfl GAMEDL_ANALYZE_ANALYSIS=action-types ./gamedl ana
 - `--analysis, -a`: Analysis type to perform (values allowed: 'action-types' or 'review-types') **(required)**
 - `--input-dir, -i`: Directory containing downloaded game files (default: "downloaded_games")
 - `--output, -o`: Output directory for analysis results (default: "analysis_results")
-- `--years, -y`: Years to include in analysis, comma-separated. e.g '2023,2024' (default: all years available)
+- `--seasons, -s`: Seasons to include in analysis, comma-separated. e.g '2023,2024' (default: all seasons available)
 
 #### Available Analysis Types
 
@@ -188,7 +188,7 @@ The following table shows all configuration options and how they can be set:
 | `analyze.analysis`    | `GAMEDL_ANALYZE_ANALYSIS`     | `--analysis, -a`    | Analysis name to perform                       |
 | `analyze.input-dir`   | `GAMEDL_ANALYZE_INPUT_DIR`    | `--input-dir, -i`   | Directory containing downloaded game files     |
 | `analyze.output`      | `GAMEDL_ANALYZE_OUTPUT`       | `--output, -o`      | Output directory for analysis results          |
-| `analyze.years`       | `GAMEDL_ANALYZE_YEARS`        | `--years, -y`       | Years to include in analysis (comma-separated) |
+| `analyze.seasons`       | `GAMEDL_ANALYZE_SEASONS`        | `--seasons, -s`     | Seasons to include in analysis (comma-separated) |
 
 ### Configuration File
 
@@ -213,7 +213,7 @@ analyze:
   analysis: action-types
   input-dir: "downloaded_games"
   output: "analysis_results"
-  years: [2021, 2022, 2023, 2024]
+  seasons: [2021, 2022, 2023, 2024]
 ```
 
 ## Output
@@ -266,22 +266,22 @@ Analysis results are saved as JSON files in the specified output directory:
 
 1. **Download NFL data from BetGenius:**
    ```bash
-   ./gamedl download --competition nfl --provider betgenius --seasons '2024'
+   ./gamedl download --competition nfl --provider betgenius --seasons 2024
    ```
 
 2. **Analyze the downloaded data:**
    ```bash
-   ./gamedl analyze --competition nfl --analysis action-types --years '2024' --output ./nfl_analysis
+   ./gamedl analyze --competition nfl --analysis action-types --seasons 2024 --output ./nfl_analysis
    ```
 
 3. **Download NCAAB data from SportRadar:**
    ```bash
-   ./gamedl download --competition ncaab --provider sr --seasons '2024'
+   ./gamedl download --competition ncaab --provider sr --seasons 2024
    ```
 
 4. **Analyze NCAAB reviews:**
    ```bash
-   ./gamedl analyze --competition ncaab --analysis review-types --years '2024'
+   ./gamedl analyze --competition ncaab --analysis review-types --seasons 2024
    ```
 
 ### Using Environment Variables
@@ -293,10 +293,10 @@ export GAMEDL_DOWNLOAD_PROVIDER=betgenius
 export GAMEDL_DOWNLOAD_CONCURRENCY=4
 
 # Download with environment defaults
-./gamedl download --seasons '2024'
+./gamedl download --seasons 2024
 
 # Override specific values
-./gamedl download --competition ncaab --provider sr --seasons '2023,2024'
+./gamedl download --competition ncaab --provider sr --seasons 2023,2024
 ```
 
 ## Help
