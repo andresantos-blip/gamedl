@@ -30,9 +30,9 @@ func runBetGenius(config Config) error {
 	case "nfl":
 		return betgenius.DownloadNFL(config.Seasons, config.Concurrency, config.OutputDir)
 	case "ncaab":
-		return betgenius.DownloadNCAB(config.Seasons, config.Concurrency, config.OutputDir)
+		return betgenius.DownloadNCAAB(config.Seasons, config.Concurrency, config.OutputDir)
 	case "ncaaf":
-		return betgenius.DownloadNCAF(config.Seasons, config.Concurrency, config.OutputDir)
+		return betgenius.DownloadNCAAF(config.Seasons, config.Concurrency, config.OutputDir)
 	default:
 		return fmt.Errorf("unsupported competition for BetGenius: %s", config.Competition)
 	}
@@ -42,10 +42,12 @@ func runSportRadar(config Config) error {
 	switch config.Competition {
 	case "nfl":
 		return sportradar.DownloadNFL(config.Seasons, config.Concurrency, config.OutputDir)
+	case "nba":
+		return sportradar.DownloadNBA(config.Seasons, config.Concurrency, config.OutputDir)
 	case "ncaab":
-		return sportradar.DownloadNCAB(config.Seasons, config.Concurrency, config.OutputDir)
+		return sportradar.DownloadNCAAB(config.Seasons, config.Concurrency, config.OutputDir)
 	case "ncaaf":
-		return sportradar.DownloadNCAF(config.Seasons, config.Concurrency, config.OutputDir)
+		return sportradar.DownloadNCAAF(config.Seasons, config.Concurrency, config.OutputDir)
 	default:
 		return fmt.Errorf("unsupported competition for SportRadar: %s", config.Competition)
 	}

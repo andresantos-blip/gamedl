@@ -25,3 +25,13 @@ func createSportRadarClientWithNCAF() (*sportsradar.Client, error) {
 	client := sportsradar.NewClient(sportsradar.WithNcaafAPIKey(apiKey))
 	return client, nil
 }
+
+func createSportRadarClientWithNba() (*sportsradar.Client, error) {
+	apiKey := os.Getenv("SPORTRADAR_NBA_KEY")
+	if apiKey == "" {
+		return nil, fmt.Errorf("SPORTRADAR_NBA_KEY environment variable not set")
+	}
+
+	client := sportsradar.NewClient(sportsradar.WithNbaAPIKey(apiKey))
+	return client, nil
+}

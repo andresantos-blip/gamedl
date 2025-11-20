@@ -2,6 +2,7 @@ package analyze
 
 import (
 	"fmt"
+	"gamedl/internal/analyze/nba"
 	"gamedl/internal/analyze/ncaab"
 	"gamedl/internal/analyze/ncaaf"
 	"gamedl/internal/analyze/nfl"
@@ -45,6 +46,8 @@ func Run(config Config) error {
 		return runNCAABAnalysis(config)
 	case "ncaaf":
 		return runNCAAFAnalysis(config)
+	case "nba":
+		return runNBAAnalysis(config)
 	default:
 		return fmt.Errorf("unsupported competition: %s", config.Competition)
 	}
@@ -56,6 +59,8 @@ func runNFLAnalysis(config Config) error {
 	switch config.AnalysisType {
 	case "action-types":
 		return analyzer.AnalyzeActionTypes(config.Seasons)
+	case "recoveries-in-conversions":
+		return analyzer.AnalyzeRecoveriesInConversions(config.Seasons)
 	default:
 		return fmt.Errorf("unsupported analysis type for NFL: %s", config.AnalysisType)
 	}
@@ -80,5 +85,16 @@ func runNCAAFAnalysis(config Config) error {
 		return analyzer.AnalyzeReviewTypes(config.Seasons)
 	default:
 		return fmt.Errorf("unsupported analysis type for NCAAF: %s", config.AnalysisType)
+	}
+}
+
+func runNBAAnalysis(config Config) error {
+	analyzer := nba.NewAnalyzer(config.InputDir, config.OutputDir)
+
+	switch config.AnalysisType {
+	case "lane-violations":
+		return analyzer.AnalyzeLaneViolations(config.Seasons)
+	default:
+		return fmt.Errorf("unsupported analysis type for NBA: %s", config.AnalysisType)
 	}
 }

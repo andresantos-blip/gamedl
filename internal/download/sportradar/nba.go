@@ -10,44 +10,40 @@ import (
 	"sync"
 )
 
-type GameProcessReport struct {
-	Err  error
-	Id   string
-	Year int
-}
-
-func gamesPerYearNcaab(client *sportsradar2.Client, seasons *sportsradar2.NcaabSeasonsInfo) (map[int][]*sportsradar2.NcaabGame, error) {
+func gamesPerYearNBA(client *sportsradar2.Client, seasons *sportsradar2.NBASeasonsInfo) (map[int][]*sportsradar2.NBAGame, error) {
 	years := seasons.Years()
-	yearToGames := make(map[int][]*sportsradar2.NcaabGame)
+	yearToGames := make(map[int][]*sportsradar2.NBAGame)
 
 	for _, year := range years {
-		schedule, err := client.GetNcaabSeasonSchedule(year)
+		schedule, err := client.GetNbaSeasonSchedule(year)
 		if err != nil {
 			return nil, fmt.Errorf("getting game schedule for year %v: %w", year, err)
 		}
 
-		yearToGames[year] = make([]*sportsradar2.NcaabGame, 0, 1024)
+		yearToGames[year] = make([]*sportsradar2.NBAGame, 0, 1024)
 		for _, game := range schedule.Games {
 			yearToGames[year] = append(yearToGames[year], game)
 		}
+
 	}
 
 	return yearToGames, nil
 }
 
-func fetchAndSaveGameNcaab(client *sportsradar2.Client, gameID string, year int, outputDir string) error {
-	gamePbpData, err := client.GetNcaabPbpOfGameRaw(gameID)
+func fetchAndSaveGameNBA(client *sportsradar2.Client, gameID string, year int, outputDir string) error {
+	gamePbpData, err := client.GetNbaPbpOfGameRaw(gameID)
 	if err != nil {
 		return fmt.Errorf("fetching game pbp: %w", err)
 	}
 
-	pathtoFile := common.GetGameFilePath(outputDir, "ncaab", year, gameID)
+	pathtoFile := common.GetGameFilePath(outputDir, "NBA", year, gameID)
 
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	err = json.Indent(bytesBuffer, gamePbpData, "", "  ")
 	if err != nil {
 		return fmt.Errorf("indenting game pbp: %w", err)
 	}
+
 	defer func() {
 		bytesBuffer.Reset()
 		bytesBuffer = nil
@@ -61,15 +57,15 @@ func fetchAndSaveGameNcaab(client *sportsradar2.Client, gameID string, year int,
 	return nil
 }
 
-func DownloadNCAAB(seasons []int, concurrency int, outputDir string) error {
-	client, err := createSportRadarClientWithNCAB()
+func DownloadNBA(seasons []int, concurrency int, outputDir string) error {
+	client, err := createSportRadarClientWithNba()
 	if err != nil {
 		return fmt.Errorf("failed to create SportRadar client: %w", err)
 	}
 
 	fmt.Println("Getting seasons data...")
 	// Fetch seasons
-	seasonsInfo, err := client.GetNcaabSeasons()
+	seasonsInfo, err := client.GetNbaSeasons()
 	if err != nil {
 		return fmt.Errorf("getting seasons: %w", err)
 	}
@@ -77,11 +73,12 @@ func DownloadNCAAB(seasons []int, concurrency int, outputDir string) error {
 	if len(seasons) > 0 {
 		seasonsInfo.FilterYears(seasons)
 	}
+	seasonsInfo.FilterSeasonType("REG")
 
 	fmt.Printf("Getting game ids for seasons %v...\n", seasonsInfo.Years())
 
 	// Get games per year
-	yearToGames, err := gamesPerYearNcaab(client, seasonsInfo)
+	yearToGames, err := gamesPerYearNBA(client, seasonsInfo)
 	if err != nil {
 		return fmt.Errorf("getting games: %w", err)
 	}
@@ -113,7 +110,7 @@ func DownloadNCAAB(seasons []int, concurrency int, outputDir string) error {
 	reportChannel := make(chan GameProcessReport, totalGames/concurrency+1)
 
 	for year, games := range yearToGames {
-		err := common.CreateYearDirectory(outputDir, "ncaab", year)
+		err := common.CreateYearDirectory(outputDir, "NBA", year)
 		if err != nil {
 			return fmt.Errorf("creating directory for year %d: %w", year, err)
 		}
@@ -135,12 +132,12 @@ func DownloadNCAAB(seasons []int, concurrency int, outputDir string) error {
 					Year: gameYear,
 				}
 
-				fetchAndSaveError := fetchAndSaveGameNcaab(client, gameID, gameYear, outputDir)
+				fetchAndSaveError := fetchAndSaveGameNBA(client, gameID, gameYear, outputDir)
 				if fetchAndSaveError != nil {
 					report.Err = fetchAndSaveError
 				}
 				reportChannel <- report
-			}(game.ID, year)
+			}(game.Id, year)
 		}
 	}
 

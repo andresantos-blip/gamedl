@@ -58,7 +58,7 @@ func fetchAndSaveGameNcaaf(client *sportsradar2.Client, gameID string, year int,
 	return nil
 }
 
-func DownloadNCAF(seasons []int, concurrency int, outputDir string) error {
+func DownloadNCAAF(seasons []int, concurrency int, outputDir string) error {
 	client, err := createSportRadarClientWithNCAF()
 	if err != nil {
 		return fmt.Errorf("failed to create SportRadar client: %w", err)

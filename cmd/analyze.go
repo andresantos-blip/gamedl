@@ -26,8 +26,8 @@ Configuration precedence (highest to lowest):
 func init() {
 	rootCmd.AddCommand(analyzeCmd)
 
-	analyzeCmd.Flags().StringP("competition", "c", "", "Competition to analyze (values allowed: 'nfl', 'ncaab' or 'ncaaf') (required)")
-	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (values allowed: 'action-types' or 'review-types') (required)")
+	analyzeCmd.Flags().StringP("competition", "c", "", "Competition to analyze (values allowed: 'nfl', 'ncaab', 'ncaaf' or 'nba') (required)")
+	analyzeCmd.Flags().StringP("analysis", "a", "", "Analysis type to perform (e.g., 'action-types', 'review-types', 'lane-violations') (required)")
 	analyzeCmd.Flags().StringP("input-dir", "i", "downloaded_games", "Directory containing downloaded game files")
 	analyzeCmd.Flags().StringP("output", "o", "analysis_results", "Output directory for analysis results")
 	analyzeCmd.Flags().StringSliceP("seasons", "s", nil, "Seasons to include in analysis, comma-separated. e.g '2023,2024' (default: all seasons available in the input directory)")
@@ -63,7 +63,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("analysis type is required")
 	}
 
-	validCompetitions := []string{"nfl", "ncaab", "ncaaf"}
+	validCompetitions := []string{"nfl", "ncaab", "ncaaf", "nba"}
 
 	if !contains(validCompetitions, competition) {
 		return fmt.Errorf("invalid competition %s. Valid options: %s", competition, strings.Join(validCompetitions, ", "))

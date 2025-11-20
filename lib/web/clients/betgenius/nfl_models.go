@@ -205,10 +205,11 @@ type Drive struct {
 		Description       string     `json:"description"`
 		SourcePlayID      string     `json:"sourcePlayId"`
 	} `json:"plays"`
-	ConversionPlays []interface{} `json:"conversionPlays"`
-	Score           []*Score      `json:"score"`
-	IsFinished      bool          `json:"isFinished"`
+	ConversionPlays []ConversionPlay `json:"conversionPlays"`
+	Score           []*Score         `json:"score"`
+	IsFinished      bool             `json:"isFinished"`
 }
+
 type GamePbp struct {
 	FirstHalf struct {
 		Drives   []Drive `json:"drives"`
@@ -437,31 +438,33 @@ type ConversionPlay struct {
 		Number int    `json:"number"`
 		Type   string `json:"type"`
 	} `json:"period"`
-	Actions []struct {
-		ID       string  `json:"id"`
-		Sequence int     `json:"sequence"`
-		Team     string  `json:"team"`
-		Type     string  `json:"type"`
-		SubType  *string `json:"subType"`
-		Players  []struct {
-			PlayerType string `json:"playerType"`
-			ID         string `json:"id"`
-		} `json:"players"`
-		Yards       interface{} `json:"yards"`
-		YardLine    interface{} `json:"yardLine"`
-		IsNullified bool        `json:"isNullified"`
-		ActiveUnits struct {
-			Home string `json:"home"`
-			Away string `json:"away"`
-		} `json:"activeUnits"`
-	} `json:"actions"`
-	Penalties         []Penalty  `json:"penalties"`
-	StartedAtGameTime string     `json:"startedAtGameTime"`
-	EndedAtGameTime   *time.Time `json:"endedAtGameTime"`
-	StartedAtUtc      *time.Time `json:"startedAtUtc"`
-	EndedAtUtc        *time.Time `json:"endedAtUtc"`
-	Description       string     `json:"description"`
-	SourcePlayID      string     `json:"sourcePlayId"`
+	Actions           []ConversionPlayAction `json:"actions"`
+	Penalties         []Penalty              `json:"penalties"`
+	StartedAtGameTime string                 `json:"startedAtGameTime"`
+	EndedAtGameTime   *time.Time             `json:"endedAtGameTime"`
+	StartedAtUtc      *time.Time             `json:"startedAtUtc"`
+	EndedAtUtc        *time.Time             `json:"endedAtUtc"`
+	Description       string                 `json:"description"`
+	SourcePlayID      string                 `json:"sourcePlayId"`
+}
+
+type ConversionPlayAction struct {
+	ID       string  `json:"id"`
+	Sequence int     `json:"sequence"`
+	Team     string  `json:"team"`
+	Type     string  `json:"type"`
+	SubType  *string `json:"subType"`
+	Players  []struct {
+		PlayerType string `json:"playerType"`
+		ID         string `json:"id"`
+	} `json:"players"`
+	Yards       interface{} `json:"yards"`
+	YardLine    interface{} `json:"yardLine"`
+	IsNullified bool        `json:"isNullified"`
+	ActiveUnits struct {
+		Home string `json:"home"`
+		Away string `json:"away"`
+	} `json:"activeUnits"`
 }
 
 type Penalty struct {

@@ -60,7 +60,7 @@ func runDownload(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("provider is required")
 	}
 
-	validCompetitions := []string{"nfl", "ncaab", "ncaaf"}
+	validCompetitions := []string{"nfl", "ncaab", "ncaaf", "nba"}
 	validProviders := []string{"sportradar", "sr", "betgenius", "genius", "bg"}
 
 	if !contains(validCompetitions, competition) {

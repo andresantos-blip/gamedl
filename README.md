@@ -84,6 +84,7 @@ export BG_STATS_PASSWORD="your_betgenius_stats_password"
 ```bash
 export SPORTRADAR_NCAAB_KEY="your_sportradar_ncaab_api_key"
 export SPORTRADAR_NCAAF_KEY="your_sportradar_ncaaf_api_key"
+export SPORTRADAR_NBA_KEY="your_sportradar_nba_api_key"
 ```
 
 ## Usage
@@ -93,6 +94,9 @@ export SPORTRADAR_NCAAF_KEY="your_sportradar_ncaaf_api_key"
 Download game data from sports providers:
 
 ```bash
+# Basic usage - download games from Sportsradar for NBA for all seasons
+./gamedl download --competition nba --provider sportsradar
+
 # Basic usage
 ./gamedl download --competition nfl --provider betgenius --seasons 2024
 
@@ -108,7 +112,7 @@ GAMEDL_DOWNLOAD_COMPETITION=nfl GAMEDL_DOWNLOAD_PROVIDER=betgenius ./gamedl down
 
 #### Download Options
 
-- `--competition, -c`: Competition to download (values allowed: 'nfl', 'ncaab' or 'ncaaf') **(required)**
+- `--competition, -c`: Competition to download (values allowed: 'nfl', 'nba', 'ncaab' or 'ncaaf') **(required)**
 - `--provider, -p`: Data provider (values allowed: 'sportradar', 'sr', 'betgenius', 'genius' or 'bg') **(required)**
 - `--seasons, -s`: Seasons to download, comma-separated. e.g '2023,2024' (default: all seasons available in the provider)
 - `--output-dir, -o`: Directory to store downloaded game files (default: downloaded_games")
@@ -121,6 +125,7 @@ GAMEDL_DOWNLOAD_COMPETITION=nfl GAMEDL_DOWNLOAD_PROVIDER=betgenius ./gamedl down
 | NFL         | ✅        | ❌         |
 | NCAAB       | ❌        | ✅         |
 | NCAAF       | ❌        | ✅         |
+| NBA         | ❌        | ✅         |
 
 ### Analyze Command
 
@@ -139,19 +144,20 @@ GAMEDL_ANALYZE_COMPETITION=nfl GAMEDL_ANALYZE_ANALYSIS=action-types ./gamedl ana
 
 #### Analyze Options
 
-- `--competition, -c`: Competition to analyze (values allowed: 'nfl', 'ncaab' or ncaaf) **(required)**
-- `--analysis, -a`: Analysis type to perform (values allowed: 'action-types' or 'review-types') **(required)**
+- `--competition, -c`: Competition to analyze (values allowed: 'nfl', 'nba', 'ncaab' or 'ncaaf') **(required)**
+- `--analysis, -a`: Analysis type to perform (e.g., 'action-types', 'review-types', 'lane-violations') **(required)**
 - `--input-dir, -i`: Directory containing downloaded game files (default: "downloaded_games")
 - `--output, -o`: Output directory for analysis results (default: "analysis_results")
 - `--seasons, -s`: Seasons to include in analysis, comma-separated. e.g '2023,2024' (default: all seasons available)
 
 #### Available Analysis Types
 
-| Competition | Analysis Name | Description                                         |
-|-------------|---------------|-----------------------------------------------------|
-| NFL         | action-types  | Analyzes play-by-play action types and sequences    |
-| NCAAB       | review-types  | Analyzes challenge reviews and related events       |
-| NCAAF       | review-types  | Analyzes overturned play reviews and related events |
+| Competition | Analysis Name     | Description                                         |
+|-------------|-------------------|-----------------------------------------------------|
+| NFL         | action-types      | Analyzes play-by-play action types and sequences    |
+| NCAAB       | review-types      | Analyzes challenge reviews and related events       |
+| NCAAF       | review-types      | Analyzes overturned play reviews and related events |
+| NBA         | lane-violations   | Analyzes lane violation events and event type counts |
 
 ## Configuration
 
@@ -260,6 +266,10 @@ Analysis results are saved as JSON files in the specified output directory:
 - `review_type_count.json`: Count of each review type
 - `review_games/`: Sample game files for review types
 
+#### NBA Analysis
+- `event_type_count.json`: Count of each event type across all games
+- `lane_violations_games/`: Game files for games with at least one lane violation event
+
 ## Examples
 
 ### Complete Workflow
@@ -282,6 +292,16 @@ Analysis results are saved as JSON files in the specified output directory:
 4. **Analyze NCAAB reviews:**
    ```bash
    ./gamedl analyze --competition ncaab --analysis review-types --seasons 2024
+   ```
+
+5. **Download NBA data from SportRadar:**
+   ```bash
+   ./gamedl download --competition nba --provider sr --seasons 2024
+   ```
+
+6. **Analyze NBA lane violations:**
+   ```bash
+   ./gamedl analyze --competition nba --analysis lane-violations --seasons 2024
    ```
 
 ### Using Environment Variables

@@ -17,10 +17,11 @@ type Analyzer struct {
 }
 
 type ProcessResultNfl struct {
-	ID             string
-	ActionTypes    map[string]int
-	ActionSubTypes map[string]int
-	BeforeAction   map[string][][]string
+	ID                      string
+	ActionTypes             map[string]int
+	ActionSubTypes          map[string]int
+	BeforeAction            map[string][][]string
+	RecoveriesInConversions []string
 }
 
 type GameReview struct {
@@ -38,9 +39,10 @@ func NewAnalyzer(inputDir, outputDir string) *Analyzer {
 
 func NewProcessResultNfl() ProcessResultNfl {
 	return ProcessResultNfl{
-		ActionTypes:    make(map[string]int),
-		ActionSubTypes: make(map[string]int),
-		BeforeAction:   make(map[string][][]string),
+		ActionTypes:             make(map[string]int),
+		ActionSubTypes:          make(map[string]int),
+		BeforeAction:            make(map[string][][]string),
+		RecoveriesInConversions: make([]string, 0),
 	}
 }
 
@@ -69,6 +71,19 @@ func (a *Analyzer) processFileNfl(path string) (ProcessResultNfl, error) {
 	}
 
 	for _, drive := range drives {
+		for _, conversionPlay := range drive.ConversionPlays {
+			cmi := slices.IndexFunc(conversionPlay.Actions, func(action betgenius.ConversionPlayAction) bool {
+				return action.Type == "ConversionMade"
+			})
+			cmr := slices.IndexFunc(conversionPlay.Actions, func(action betgenius.ConversionPlayAction) bool {
+				return action.Type == "Recovery"
+			})
+
+			if cmi != -1 && cmr != -1 && cmi > cmr {
+				result.RecoveriesInConversions = append(result.RecoveriesInConversions, conversionPlay.ID)
+			}
+
+		}
 		for _, play := range drive.Plays {
 			for i, action := range play.Actions {
 				result.ActionTypes[action.Type]++
@@ -164,6 +179,48 @@ func (a *Analyzer) AnalyzeActionTypes(years []int) error {
 
 	if err := a.writeJSONFile("sub_action_type_count.json", subActionTypeCount); err != nil {
 		return fmt.Errorf("writing sub_action_type_count: %w", err)
+	}
+
+	if len(errs) > 0 {
+		fmt.Printf("Encountered %d errors during processing:\n", len(errs))
+		for _, err := range errs {
+			fmt.Printf("  %v\n", err)
+		}
+	}
+
+	return nil
+}
+
+func (a *Analyzer) AnalyzeRecoveriesInConversions(years []int) error {
+
+	var errs []error
+	conversionPlaysWithRecoveries := make(map[string][]string, 0)
+
+	for _, year := range years {
+		path := common.GetYearGlobPattern(a.inputDir, "nfl", year)
+		matches, err := filepath.Glob(path)
+		if err != nil {
+			fmt.Printf("Error globbing files for year %d: %v\n", year, err)
+			continue
+		}
+
+		fmt.Printf("year: %d, matches: %v\n", year, len(matches))
+		for _, match := range matches {
+			result, err := a.processFileNfl(match)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
+			if len(result.RecoveriesInConversions) > 0 {
+				conversionPlaysWithRecoveries[result.ID] = result.RecoveriesInConversions
+			}
+		}
+	}
+
+	// Write results
+	if err := a.writeJSONFile("recoveries_in_conversion_plays.json", conversionPlaysWithRecoveries); err != nil {
+		return fmt.Errorf("writing recoveries_in_conversion_plays: %w", err)
 	}
 
 	if len(errs) > 0 {
