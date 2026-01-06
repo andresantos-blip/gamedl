@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gamedl/internal/common"
-	betgenius2 "gamedl/lib/web/clients/betgenius"
 	"os"
 	"strconv"
 	"sync"
+
+	"gamedl/internal/common"
+	betgenius2 "gamedl/lib/web/clients/betgenius"
 )
 
 type GameProcessReport struct {
@@ -51,7 +52,7 @@ func fetchAndSaveGameNfl(client *betgenius2.Client, gameID string, year int, out
 		bytesBuffer = nil
 	}()
 
-	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0644)
+	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0o644)
 	if err != nil {
 		return fmt.Errorf("saving game pbp: %w", err)
 	}

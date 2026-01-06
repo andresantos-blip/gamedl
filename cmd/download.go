@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"gamedl/internal/download"
 	"os"
 	"strconv"
 	"strings"
+
+	"gamedl/internal/download"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

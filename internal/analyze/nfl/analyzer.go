@@ -3,12 +3,13 @@ package nfl
 import (
 	"encoding/json"
 	"fmt"
-	"gamedl/internal/common"
-	"gamedl/lib/web/clients/betgenius"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
+
+	"gamedl/internal/common"
+	"gamedl/lib/web/clients/betgenius"
 )
 
 type Analyzer struct {
@@ -104,7 +105,6 @@ func (a *Analyzer) processFileNfl(path string) (ProcessResultNfl, error) {
 }
 
 func (a *Analyzer) AnalyzeActionTypes(years []int) error {
-
 	var errs []error
 	actionsToGames := make(map[string][]*GameReview)
 	subActionsToGames := make(map[string][]*GameReview)
@@ -192,7 +192,6 @@ func (a *Analyzer) AnalyzeActionTypes(years []int) error {
 }
 
 func (a *Analyzer) AnalyzeRecoveriesInConversions(years []int) error {
-
 	var errs []error
 	conversionPlaysWithRecoveries := make(map[string][]string, 0)
 
@@ -235,7 +234,7 @@ func (a *Analyzer) AnalyzeRecoveriesInConversions(years []int) error {
 
 func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	// Ensure output directory exists
-	if err := os.MkdirAll(a.outputDir, 0755); err != nil {
+	if err := os.MkdirAll(a.outputDir, 0o755); err != nil {
 		return fmt.Errorf("creating output directory: %w", err)
 	}
 
@@ -245,7 +244,7 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	}
 
 	filePath := filepath.Join(a.outputDir, filename)
-	if err := os.WriteFile(filePath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(filePath, jsonData, 0o644); err != nil {
 		return fmt.Errorf("writing file %s: %w", filePath, err)
 	}
 

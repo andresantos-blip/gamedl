@@ -2,6 +2,7 @@ package download
 
 import (
 	"fmt"
+
 	"gamedl/internal/download/betgenius"
 	"gamedl/internal/download/sportradar"
 )

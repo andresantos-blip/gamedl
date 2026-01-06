@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gamedl/internal/common"
-	sportsradar2 "gamedl/lib/web/clients/sportsradar"
 	"os"
 	"sync"
+
+	"gamedl/internal/common"
+	sportsradar2 "gamedl/lib/web/clients/sportsradar"
 )
 
 func gamesPerYearNBA(client *sportsradar2.Client, seasons *sportsradar2.NBASeasonsInfo) (map[int][]*sportsradar2.NBAGame, error) {
@@ -49,7 +50,7 @@ func fetchAndSaveGameNBA(client *sportsradar2.Client, gameID string, year int, o
 		bytesBuffer = nil
 	}()
 
-	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0644)
+	err = os.WriteFile(pathtoFile, bytesBuffer.Bytes(), 0o644)
 	if err != nil {
 		return fmt.Errorf("saving game pbp: %w", err)
 	}

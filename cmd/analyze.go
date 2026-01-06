@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"gamedl/internal/analyze"
 	"os"
 	"strings"
+
+	"gamedl/internal/analyze"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

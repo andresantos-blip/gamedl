@@ -102,15 +102,14 @@ type Fixture struct {
 	StatusType         string `json:"statusType"`
 	Type               string `json:"type"`
 	Fixturecompetitors []struct {
-		ID                        int `json:"id"`
-		Number                    int `json:"number"`
-		Fixturecompetitorproperty struct {
-		} `json:"fixturecompetitorproperty"`
-		Updates    int    `json:"updates"`
-		Deleted    bool   `json:"deleted"`
-		LastUpdate string `json:"lastUpdate"`
-		Links      `json:"_links"`
-		Competitor struct {
+		ID                        int      `json:"id"`
+		Number                    int      `json:"number"`
+		Fixturecompetitorproperty struct{} `json:"fixturecompetitorproperty"`
+		Updates                   int      `json:"updates"`
+		Deleted                   bool     `json:"deleted"`
+		LastUpdate                string   `json:"lastUpdate"`
+		Links                     `json:"_links"`
+		Competitor                struct {
 			ID         int    `json:"id"`
 			Name       string `json:"name"`
 			SportID    int    `json:"sportId"`

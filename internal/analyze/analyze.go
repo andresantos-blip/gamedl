@@ -2,6 +2,7 @@ package analyze
 
 import (
 	"fmt"
+
 	"gamedl/internal/analyze/nba"
 	"gamedl/internal/analyze/ncaab"
 	"gamedl/internal/analyze/ncaaf"

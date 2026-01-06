@@ -2,8 +2,9 @@ package sportradar
 
 import (
 	"fmt"
-	"gamedl/lib/web/clients/sportsradar"
 	"os"
+
+	"gamedl/lib/web/clients/sportsradar"
 )
 
 func createSportRadarClientWithNCAB() (*sportsradar.Client, error) {

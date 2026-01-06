@@ -3,13 +3,14 @@ package ncaab
 import (
 	"encoding/json"
 	"fmt"
-	"gamedl/internal/common"
-	"gamedl/lib/web/clients/sportsradar"
 	"io"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"gamedl/internal/common"
+	"gamedl/lib/web/clients/sportsradar"
 )
 
 type Analyzer struct {
@@ -90,7 +91,6 @@ func (a *Analyzer) processFileNcaab(path string) (ProcessResultNcaab, error) {
 }
 
 func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
-
 	var errs []error
 	eventsToGames := make(map[string][]*GameReview)
 	eventTypeCount := make(map[string]int)
@@ -144,7 +144,7 @@ func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
 
 	// Create review games directory and copy sample games
 	reviewGamesDir := filepath.Join(a.outputDir, "review_games_ncaab")
-	if err := os.MkdirAll(reviewGamesDir, 0755); err != nil {
+	if err := os.MkdirAll(reviewGamesDir, 0o755); err != nil {
 		fmt.Printf("could not create review_games directory: %v\n", err)
 	} else {
 		for eventType, games := range eventsToGames {
@@ -168,7 +168,7 @@ func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
 				}
 
 				baseName := fmt.Sprintf("%s-%s.json", cleanEventType, game.ID)
-				err = os.WriteFile(filepath.Join(reviewGamesDir, baseName), gameData, 0644)
+				err = os.WriteFile(filepath.Join(reviewGamesDir, baseName), gameData, 0o644)
 				if err != nil {
 					fmt.Printf("could not write game file: %v\n", err)
 				}
@@ -188,7 +188,7 @@ func (a *Analyzer) AnalyzeReviewTypes(years []int) error {
 
 func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	// Ensure output directory exists
-	if err := os.MkdirAll(a.outputDir, 0755); err != nil {
+	if err := os.MkdirAll(a.outputDir, 0o755); err != nil {
 		return fmt.Errorf("creating output directory: %w", err)
 	}
 
@@ -198,7 +198,7 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	}
 
 	filePath := filepath.Join(a.outputDir, filename)
-	if err := os.WriteFile(filePath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(filePath, jsonData, 0o644); err != nil {
 		return fmt.Errorf("writing file %s: %w", filePath, err)
 	}
 

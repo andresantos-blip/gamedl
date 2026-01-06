@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"gamedl/lib/app/build"
 	"os"
+
+	"gamedl/lib/app/build"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

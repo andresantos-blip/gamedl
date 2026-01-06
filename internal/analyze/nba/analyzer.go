@@ -3,11 +3,12 @@ package nba
 import (
 	"encoding/json"
 	"fmt"
-	"gamedl/internal/common"
-	"gamedl/lib/web/clients/sportsradar"
 	"io"
 	"os"
 	"path/filepath"
+
+	"gamedl/internal/common"
+	"gamedl/lib/web/clients/sportsradar"
 )
 
 type Analyzer struct {
@@ -201,7 +202,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 
 	// Create lane violations games directory and copy games
 	laneViolationsGamesDir := filepath.Join(a.outputDir, "lane_violations_games")
-	if err := os.MkdirAll(laneViolationsGamesDir, 0755); err != nil {
+	if err := os.MkdirAll(laneViolationsGamesDir, 0o755); err != nil {
 		fmt.Printf("could not create lane_violations_games directory: %v\n", err)
 	} else {
 		for gameID, year := range gamesWithLaneViolations {
@@ -213,7 +214,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 			}
 
 			baseName := fmt.Sprintf("%s.json", gameID)
-			err = os.WriteFile(filepath.Join(laneViolationsGamesDir, baseName), gameData, 0644)
+			err = os.WriteFile(filepath.Join(laneViolationsGamesDir, baseName), gameData, 0o644)
 			if err != nil {
 				fmt.Printf("could not write game file: %v\n", err)
 			} else {
@@ -225,7 +226,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 
 	// Create lane violation turnover games directory and copy games
 	laneViolationTurnoverGamesDir := filepath.Join(a.outputDir, "lane_violation_turnover_games")
-	if err := os.MkdirAll(laneViolationTurnoverGamesDir, 0755); err != nil {
+	if err := os.MkdirAll(laneViolationTurnoverGamesDir, 0o755); err != nil {
 		fmt.Printf("could not create lane_violation_turnover_games directory: %v\n", err)
 	} else {
 		for gameID, year := range gamesWithLaneViolationTurnovers {
@@ -237,7 +238,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 			}
 
 			baseName := fmt.Sprintf("%s.json", gameID)
-			err = os.WriteFile(filepath.Join(laneViolationTurnoverGamesDir, baseName), gameData, 0644)
+			err = os.WriteFile(filepath.Join(laneViolationTurnoverGamesDir, baseName), gameData, 0o644)
 			if err != nil {
 				fmt.Printf("could not write game file: %v\n", err)
 			} else {
@@ -259,7 +260,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 
 func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	// Ensure output directory exists
-	if err := os.MkdirAll(a.outputDir, 0755); err != nil {
+	if err := os.MkdirAll(a.outputDir, 0o755); err != nil {
 		return fmt.Errorf("creating output directory: %w", err)
 	}
 
@@ -269,7 +270,7 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	}
 
 	filePath := filepath.Join(a.outputDir, filename)
-	if err := os.WriteFile(filePath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(filePath, jsonData, 0o644); err != nil {
 		return fmt.Errorf("writing file %s: %w", filePath, err)
 	}
 

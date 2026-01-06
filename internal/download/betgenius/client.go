@@ -2,8 +2,9 @@ package betgenius
 
 import (
 	"fmt"
-	"gamedl/lib/web/clients/betgenius"
 	"os"
+
+	"gamedl/lib/web/clients/betgenius"
 )
 
 func createBetGeniusClient() (*betgenius.Client, error) {

@@ -37,7 +37,7 @@ func GetYearGlobPattern(baseDir, competition string, year int) string {
 // CreateYearDirectory creates the year directory for a competition if it doesn't exist
 func CreateYearDirectory(baseDir, competition string, year int) error {
 	yearDir := GetYearDirectoryPath(baseDir, competition, year)
-	return os.MkdirAll(yearDir, 0755)
+	return os.MkdirAll(yearDir, 0o755)
 }
 
 // GetAvailableYears returns all available years for a competition by examining the directory structure
