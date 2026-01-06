@@ -271,27 +271,27 @@ type NbaGamePbp struct {
 				CoordY     int    `json:"coord_y"`
 				ActionArea string `json:"action_area"`
 			} `json:"location,omitempty"`
-		Statistics []struct {
-			Type           string  `json:"type"`
-			Made           bool    `json:"made"`
-			ShotType       string  `json:"shot_type"`
-			ThreePointShot bool    `json:"three_point_shot"`
-			ShotDistance   float64 `json:"shot_distance"`
-			Team           *struct {
-				Name      string `json:"name"`
-				Market    string `json:"market"`
-				ID        string `json:"id"`
-				SrID      string `json:"sr_id"`
-				Reference string `json:"reference"`
-			} `json:"team,omitempty"`
-			Player *struct {
-				FullName     string `json:"full_name"`
-				JerseyNumber string `json:"jersey_number"`
-				ID           string `json:"id"`
-				SrID         string `json:"sr_id"`
-				Reference    string `json:"reference"`
-			} `json:"player,omitempty"`
-		} `json:"statistics,omitempty"`
+			Statistics []struct {
+				Type           string  `json:"type"`
+				Made           bool    `json:"made"`
+				ShotType       string  `json:"shot_type"`
+				ThreePointShot bool    `json:"three_point_shot"`
+				ShotDistance   float64 `json:"shot_distance"`
+				Team           *struct {
+					Name      string `json:"name"`
+					Market    string `json:"market"`
+					ID        string `json:"id"`
+					SrID      string `json:"sr_id"`
+					Reference string `json:"reference"`
+				} `json:"team,omitempty"`
+				Player *struct {
+					FullName     string `json:"full_name"`
+					JerseyNumber string `json:"jersey_number"`
+					ID           string `json:"id"`
+					SrID         string `json:"sr_id"`
+					Reference    string `json:"reference"`
+				} `json:"player,omitempty"`
+			} `json:"statistics,omitempty"`
 			Qualifiers []struct {
 				Qualifier string `json:"qualifier"`
 			} `json:"qualifiers,omitempty"`

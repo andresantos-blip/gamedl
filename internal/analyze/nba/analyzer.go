@@ -278,11 +278,14 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 }
 
 // processFileForPlayerStats processes a single PBP file and returns statistics about events
-// that have statistics without player information. The gameID is derived from the filename.
+// that have statistics without player information. The gameID is the path relative to inputDir.
 func (a *Analyzer) processFileForPlayerStats(path string) (PlayerStatsResult, error) {
-	// Derive game ID from filename (without extension)
-	gameID := filepath.Base(path)
-	gameID = gameID[:len(gameID)-len(filepath.Ext(gameID))]
+	// Derive game ID from relative path to inputDir
+	gameID, err := filepath.Rel(a.inputDir, path)
+	if err != nil {
+		// Fallback to full path if relative path fails
+		gameID = path
+	}
 
 	result := PlayerStatsResult{
 		GameID:                      gameID,
