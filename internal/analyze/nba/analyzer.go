@@ -16,12 +16,12 @@ type Analyzer struct {
 }
 
 type ProcessResultNba struct {
-	ID              string
-	EventTypes      map[string]int
-	TurnoverTypes   map[string]int
-	HasLane         bool
+	ID                       string
+	EventTypes               map[string]int
+	TurnoverTypes            map[string]int
+	HasLane                  bool
 	HasLaneViolationTurnover bool
-	LaneViolations  []LaneViolationContext
+	LaneViolations           []LaneViolationContext
 }
 
 type LaneViolationContext struct {
@@ -35,6 +35,19 @@ type GameLaneViolations struct {
 	Violations []LaneViolationContext `json:"violations"`
 }
 
+// PlayerStatsResult holds the result of processing a single game for player stats analysis
+type PlayerStatsResult struct {
+	GameID                      string
+	EventTypesWithMissingPlayer map[string]int
+	HasMissingPlayerStats       bool
+}
+
+// GameMissingPlayerStats represents a game with events that have statistics without player info
+type GameMissingPlayerStats struct {
+	GameID     string   `json:"game_id"`
+	EventTypes []string `json:"event_types"`
+}
+
 func NewAnalyzer(inputDir, outputDir string) *Analyzer {
 	return &Analyzer{
 		inputDir:  inputDir,
@@ -44,11 +57,11 @@ func NewAnalyzer(inputDir, outputDir string) *Analyzer {
 
 func NewProcessResultNba() ProcessResultNba {
 	return ProcessResultNba{
-		EventTypes:                make(map[string]int),
-		TurnoverTypes:             make(map[string]int),
-		HasLane:                   false,
-		HasLaneViolationTurnover:  false,
-		LaneViolations:            make([]LaneViolationContext, 0),
+		EventTypes:               make(map[string]int),
+		TurnoverTypes:            make(map[string]int),
+		HasLane:                  false,
+		HasLaneViolationTurnover: false,
+		LaneViolations:           make([]LaneViolationContext, 0),
 	}
 }
 
@@ -101,10 +114,10 @@ func (a *Analyzer) processFileNba(path string) (ProcessResultNba, error) {
 			// Get up to 5 events before
 			beforeStart := max(0, i-5)
 			beforeEvents := allEvents[beforeStart:i]
-			
+
 			// Get up to 5 events after
 			afterEnd := min(len(allEvents), i+6)
-			afterEvents := allEvents[i+1:afterEnd]
+			afterEvents := allEvents[i+1 : afterEnd]
 
 			result.LaneViolations = append(result.LaneViolations, LaneViolationContext{
 				Before: beforeEvents,
@@ -121,7 +134,7 @@ func (a *Analyzer) AnalyzeLaneViolations(years []int) error {
 	var errs []error
 	eventTypeCount := make(map[string]int)
 	turnoverTypeCount := make(map[string]int)
-	gamesWithLaneViolations := make(map[string]int) // gameID -> year
+	gamesWithLaneViolations := make(map[string]int)         // gameID -> year
 	gamesWithLaneViolationTurnovers := make(map[string]int) // gameID -> year
 	gamesLaneViolationsContext := make([]GameLaneViolations, 0)
 
@@ -261,5 +274,135 @@ func (a *Analyzer) writeJSONFile(filename string, data interface{}) error {
 	}
 
 	fmt.Printf("Written: %s\n", filePath)
+	return nil
+}
+
+// processFileForPlayerStats processes a single PBP file and returns statistics about events
+// that have statistics without player information. The gameID is derived from the filename.
+func (a *Analyzer) processFileForPlayerStats(path string) (PlayerStatsResult, error) {
+	// Derive game ID from filename (without extension)
+	gameID := filepath.Base(path)
+	gameID = gameID[:len(gameID)-len(filepath.Ext(gameID))]
+
+	result := PlayerStatsResult{
+		GameID:                      gameID,
+		EventTypesWithMissingPlayer: make(map[string]int),
+		HasMissingPlayerStats:       false,
+	}
+
+	f, err := os.OpenFile(path, os.O_RDONLY, 0)
+	if err != nil {
+		return result, fmt.Errorf("could not open file %s: %w", path, err)
+	}
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
+	if err != nil {
+		return result, fmt.Errorf("could not read file %s: %w", path, err)
+	}
+
+	pbpData := &sportsradar.NbaGamePbp{}
+	err = json.Unmarshal(data, pbpData)
+	if err != nil {
+		return result, fmt.Errorf("could not unmarshal game pbp: %w", err)
+	}
+
+	// Iterate through all periods and events
+	for _, period := range pbpData.Periods {
+		for _, event := range period.Events {
+			// Check if this event has statistics
+			if len(event.Statistics) == 0 {
+				continue
+			}
+
+			// Check if any statistic is missing player info
+			for _, stat := range event.Statistics {
+				if stat.Player == nil {
+					result.EventTypesWithMissingPlayer[event.EventType]++
+					result.HasMissingPlayerStats = true
+				}
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// AnalyzePlayerStats analyzes PBP data to find events with statistics that are missing player information.
+// It recursively searches for all JSON files in the input directory.
+func (a *Analyzer) AnalyzePlayerStats() error {
+	var errs []error
+
+	// Aggregate counts of event types with missing player stats
+	eventTypeCount := make(map[string]int)
+
+	// Track games with missing player stats and their affected event types
+	gamesWithMissingPlayerStats := make([]GameMissingPlayerStats, 0)
+
+	// filepath.Glob doesn't support ** for recursive matching, so we use filepath.WalkDir instead
+	var matches []string
+	err := filepath.WalkDir(a.inputDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && filepath.Ext(path) == ".json" {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error walking directory: %w", err)
+	}
+
+	fmt.Printf("Found %d JSON files in %s\n", len(matches), a.inputDir)
+
+	for _, match := range matches {
+		result, err := a.processFileForPlayerStats(match)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		// Aggregate event type counts
+		for eventType, count := range result.EventTypesWithMissingPlayer {
+			eventTypeCount[eventType] += count
+		}
+
+		// Track games with missing player stats
+		if result.HasMissingPlayerStats {
+			// Collect unique event types for this game
+			eventTypes := make([]string, 0, len(result.EventTypesWithMissingPlayer))
+			for eventType := range result.EventTypesWithMissingPlayer {
+				eventTypes = append(eventTypes, eventType)
+			}
+
+			gamesWithMissingPlayerStats = append(gamesWithMissingPlayerStats, GameMissingPlayerStats{
+				GameID:     result.GameID,
+				EventTypes: eventTypes,
+			})
+		}
+	}
+
+	// Write event type count report
+	if err := a.writeJSONFile("event_types_without_player_stats.json", eventTypeCount); err != nil {
+		return fmt.Errorf("writing event_types_without_player_stats: %w", err)
+	}
+
+	// Write games with missing player stats report
+	if err := a.writeJSONFile("games_with_missing_player_stats.json", gamesWithMissingPlayerStats); err != nil {
+		return fmt.Errorf("writing games_with_missing_player_stats: %w", err)
+	}
+
+	if len(errs) > 0 {
+		fmt.Printf("Encountered %d errors during processing:\n", len(errs))
+		for _, err := range errs {
+			fmt.Printf("  %v\n", err)
+		}
+	}
+
+	fmt.Printf("\nAnalysis complete:\n")
+	fmt.Printf("  - Total event types with missing player stats: %d\n", len(eventTypeCount))
+	fmt.Printf("  - Total games with missing player stats: %d\n", len(gamesWithMissingPlayerStats))
+
 	return nil
 }

@@ -17,7 +17,21 @@ type Config struct {
 	Seasons      []int
 }
 
+// analysisRequiresYears returns true if the given analysis type requires year-based directory structure
+func analysisRequiresYears(competition, analysisType string) bool {
+	// player-stats analysis for NBA doesn't require years - it searches recursively
+	if competition == "nba" && analysisType == "player-stats" {
+		return false
+	}
+	return true
+}
+
 func hydrateConfig(config *Config) error {
+	// Skip year discovery for analyses that don't require it
+	if !analysisRequiresYears(config.Competition, config.AnalysisType) {
+		return nil
+	}
+
 	// If no years are specified, discover available years from directory structure
 	if len(config.Seasons) == 0 {
 		availableYears, err := common.GetAvailableYears(config.InputDir, config.Competition)
@@ -94,6 +108,8 @@ func runNBAAnalysis(config Config) error {
 	switch config.AnalysisType {
 	case "lane-violations":
 		return analyzer.AnalyzeLaneViolations(config.Seasons)
+	case "player-stats":
+		return analyzer.AnalyzePlayerStats()
 	default:
 		return fmt.Errorf("unsupported analysis type for NBA: %s", config.AnalysisType)
 	}
