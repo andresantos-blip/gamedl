@@ -39,7 +39,7 @@ type GameLaneViolations struct {
 // PlayerStatsResult holds the result of processing a single game for player stats analysis
 type PlayerStatsResult struct {
 	GameID                      string
-	EventTypesWithMissingPlayer map[string]int
+	EventTypesWithMissingPlayer map[string][]string
 	HasMissingPlayerStats       bool
 }
 
@@ -290,7 +290,7 @@ func (a *Analyzer) processFileForPlayerStats(path string) (PlayerStatsResult, er
 
 	result := PlayerStatsResult{
 		GameID:                      gameID,
-		EventTypesWithMissingPlayer: make(map[string]int),
+		EventTypesWithMissingPlayer: make(map[string][]string),
 		HasMissingPlayerStats:       false,
 	}
 
@@ -322,7 +322,7 @@ func (a *Analyzer) processFileForPlayerStats(path string) (PlayerStatsResult, er
 			// Check if any statistic is missing player info
 			for _, stat := range event.Statistics {
 				if stat.Player == nil {
-					result.EventTypesWithMissingPlayer[event.EventType]++
+					result.EventTypesWithMissingPlayer[event.EventType] = append(result.EventTypesWithMissingPlayer[event.EventType], event.ID)
 					result.HasMissingPlayerStats = true
 				}
 			}
@@ -339,6 +339,7 @@ func (a *Analyzer) AnalyzePlayerStats() error {
 
 	// Aggregate counts of event types with missing player stats
 	eventTypeCount := make(map[string]int)
+	eventTypeCountUnique := make(map[string]int)
 
 	// Track games with missing player stats and their affected event types
 	gamesWithMissingPlayerStats := make([]GameMissingPlayerStats, 0)
@@ -360,6 +361,8 @@ func (a *Analyzer) AnalyzePlayerStats() error {
 
 	fmt.Printf("Found %d JSON files in %s\n", len(matches), a.inputDir)
 
+	uniqueEventIds := make(map[string]struct{})
+
 	for _, match := range matches {
 		result, err := a.processFileForPlayerStats(match)
 		if err != nil {
@@ -368,8 +371,15 @@ func (a *Analyzer) AnalyzePlayerStats() error {
 		}
 
 		// Aggregate event type counts
-		for eventType, count := range result.EventTypesWithMissingPlayer {
-			eventTypeCount[eventType] += count
+		for eventType, ids := range result.EventTypesWithMissingPlayer {
+			eventTypeCount[eventType] += len(ids)
+			for _, id := range ids {
+				if _, ok := uniqueEventIds[id]; !ok {
+					eventTypeCountUnique[eventType] += 1
+					uniqueEventIds[id] = struct{}{}
+				}
+			}
+
 		}
 
 		// Track games with missing player stats
@@ -390,6 +400,10 @@ func (a *Analyzer) AnalyzePlayerStats() error {
 	// Write event type count report
 	if err := a.writeJSONFile("event_types_without_player_stats.json", eventTypeCount); err != nil {
 		return fmt.Errorf("writing event_types_without_player_stats: %w", err)
+	}
+
+	if err := a.writeJSONFile("event_types_without_player_stats_unique.json", eventTypeCountUnique); err != nil {
+		return fmt.Errorf("writing event_types_without_player_stats_unique: %w", err)
 	}
 
 	// Write games with missing player stats report
